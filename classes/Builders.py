@@ -176,7 +176,7 @@ class Builder:
 
         # Calculate individual tag rating
 
-        user_tags_stats = Tags.TagsStatistics(completed_questions, rating_question_data)
+        user_tags_stats = Tag.TagsStatistics(completed_questions, rating_question_data)
         user_tags_stats.build_tag_data()
         user_tags = user_tags_stats.to_object()
 
@@ -195,3 +195,14 @@ class Builder:
         end_time = time.perf_counter()
 
         print(f"Successfully built user database, took {end_time - start_time}s")
+
+    @staticmethod
+    def clean_up_data():
+        # first thing is to make sure rating_question_tag is sorted by key
+        with open("data/rating_question_tag.json", "r+") as f:
+            rating_question_data = json.load(f)
+
+        write_data = dict(sorted(rating_question_data.items(), key=lambda x: int(x[0])))
+
+        with open("data/rating_question_tag.json", "w+") as f:
+            json.dump(write_data, f, indent=4, separators=(',', ': '))

@@ -80,7 +80,6 @@ class Tag:
             self.tag_rating = 0
             return
 
-        # self.tag_rating = quantiles(self.ratings, n=100)[74] # 75th percentile
         np_ratings = np.array(self.ratings)
         self.tag_rating = np.percentile(np_ratings, 75) # 75th percentile
 

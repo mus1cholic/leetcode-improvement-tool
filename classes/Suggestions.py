@@ -1,13 +1,70 @@
+import json
+import random
+
 class Suggestion:
     def __init__(self):
-        pass
+        with open("data/rating_question_tag.json", "r+") as f:
+            self.questions_data = json.load(f)
 
-    def suggest_problem(self):
+        # print(self.questions_data)
+
+        self.question_ids = [(self.questions_data[x]["rating"],
+                              int(x),
+                              self.questions_data[x]["link"])
+                              for x in self.questions_data.keys()]
+        
+        self.question_ids.sort(key=lambda x: x[0])
+
+    def suggest_problem(self, rating_range, filter_func):
+        range_min, range_max = rating_range
+
+        # binary search
+        left = 0
+        right = len(self.question_ids) + 1
+
+        def find_leftmost(k):
+            return self.question_ids[k][0] >= range_min
+
+        # find leftmost index that is in given range
+        while left < right:
+            mid = left + (right - left) // 2
+
+            if find_leftmost(mid):
+                right = mid
+            else:
+                left = mid + 1
+
+        leftmost_index = left
+
+        left = leftmost_index
+        right = len(self.question_ids) + 1
+
+        def find_rightmost(k):
+            return self.question_ids[k][0] >= range_max
+        
+        # find leftmost index that is bigger than range_max
+        while left < right:
+            mid = left + (right - left) // 2
+
+            if find_rightmost(mid):
+                right = mid
+            else:
+                left = mid + 1
+
+        rightmost_index = left - 1
+
+        random_question_index = random.randint(leftmost_index, rightmost_index)
+
+        return self.question_ids[random_question_index][2]
+
+
+    def rating_range_filter(self, range):
         # suggests a problem based on some criteria
         # to be overriden by a subclass
         pass
 
-class WeakSkillsetSuggestion:
+
+class WeakSkillsetSuggestion(Suggestion):
     def __init__(self):
         super().__init__()
 
