@@ -9,14 +9,14 @@ class Suggestion:
 
 class WeakSkillsetSuggestion:
     def __init__(self):
-        pass
+        super().__init__()
 
     def suggest_problem(self, tag_difficulty):
         pass
 
 class RandomSuggestion:
     def __init__(self):
-        pass
+        super().__init__()
 
     def suggest_problem(self, difficulty):
         # do we calculate rating range here or somewhere else?
