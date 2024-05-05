@@ -2,8 +2,12 @@ from discord.ext import commands
 
 from classes.Suggestions import Suggestion
 
+"""
+Contains commands relating to the recommendation system
+"""
+
 class Recommendations(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot: commands.Bot = bot
         self.suggestion: Suggestion = Suggestion()
 
@@ -17,8 +21,6 @@ class Recommendations(commands.Cog):
 
         await self.bot.tree.sync()
         await ctx.send('Command tree synced.')
-
-        print(self.bot.tree.get_commands())
 
     @commands.hybrid_command()
     async def recommend(self, ctx: commands.Context):

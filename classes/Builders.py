@@ -1,16 +1,22 @@
 import json
 import time
 
-from .Tags import Tag
+from .Tags import Tag, TagsStatistics
 
 import utils.utils as utils
 
 """
-This class contains class methods specifically used to build .json files
+This class contains class methods specifically used to modify and check .json files
 """
 
 class Builder:
     def __init__(self):
+        # TODO: eventually, we want all the json files to be
+        # stored in memory on startup, instead of having to open them
+        # every time
+
+        # TODO: eventually eventually, we will use an actual database
+        # (maybe mongoDB) to store these info
         pass
 
     @staticmethod
@@ -116,7 +122,7 @@ class Builder:
         print(f"Successfully built questions_rating database, took {end_time - start_time}s")
 
     @staticmethod
-    def build_user_data():
+    def build_user_data(user_discord_id: str, user_data_txt: str):
         # using user.txt, builds user database
 
         # input: user.txt, rating_question_tag.json, user_data.json
@@ -143,17 +149,19 @@ class Builder:
         with open("data/rating_question_tag.json", "r+") as f:
             rating_question_data = json.load(f)
 
-        with open("data/user.txt", "r+") as f:
-            user_data = json.load(f)
+        # with open("data/user.txt", "r+") as f:
+        #     user_data = json.load(f)
+
+        user_data = json.loads(user_data_txt)
 
         with open("data/user_data.json", "r+") as f:
             write_data = json.load(f)
 
-        user_name = user_data["user_name"]
+        lc_username = user_data["user_name"]
 
         # TODO: find a way to not call this in a Builder, we want
         # parsing calls to only be called in Parsers
-        r = utils.api_get_question_info(user_name)
+        r = utils.api_get_user_contest_info(lc_username)
         user_contest_data = r.json()
 
         contest_rating = user_contest_data["contestRating"] if "contestRating" in user_contest_data else 0
@@ -176,18 +184,18 @@ class Builder:
 
         # Calculate individual tag rating
 
-        user_tags_stats = Tag.TagsStatistics(completed_questions, rating_question_data)
+        user_tags_stats = TagsStatistics(completed_questions, rating_question_data)
         user_tags_stats.build_tag_data()
         user_tags = user_tags_stats.to_object()
 
         user_data_structure = {
-            "user_name": user_name,
+            "user_name": lc_username,
             "contest_rating": contest_rating,
             "completed_questions": completed_questions,
             "tags": user_tags
         }
 
-        write_data[user_name] = user_data_structure
+        write_data[user_discord_id] = user_data_structure
 
         with open("data/user_data.json", "w+") as f:
             json.dump(write_data, f, indent=4, separators=(',', ': '))
@@ -206,3 +214,10 @@ class Builder:
 
         with open("data/rating_question_tag.json", "w+") as f:
             json.dump(write_data, f, indent=4, separators=(',', ': '))
+
+    @staticmethod
+    def check_user_exist(user_id: str):
+        with open("data/user.txt", "r+") as f:
+            user_data = json.load(f)
+
+        return user_id in user_data
