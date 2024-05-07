@@ -23,7 +23,7 @@ class Recommendations(commands.Cog):
         await ctx.send('Command tree synced.')
 
     @commands.hybrid_command()
-    async def recommend(self, ctx: commands.Context):
+    async def recommend(self, ctx: commands.Context, difficulty: str):
         rating_range = (1500, 1800)
 
         random_question_id = self.suggestion.suggest_problem(rating_range, "TODO")

@@ -24,7 +24,9 @@ class UserSetup(commands.Cog):
                         "command, and send the message. The server will then save " + \
                         "your information in the database.\n\nIf you would like to " + \
                         "update your information instead, do the same thing, but " + \
-                        "with the command /updateprofile."
+                        "with the command /updateprofile.\n\n" + \
+                        "By uploading this .txt file, you are agreeing to let LIT " + \
+                        "use your personal leetcode statistical data."
 
         await ctx.send(response_str)
 
