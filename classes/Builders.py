@@ -76,56 +76,85 @@ class Builder:
 
     def build_question_rating_data(self):
         # now that we have question bank, we can simplify all of the questions
-        # to build association between rating, question, and tags
+        # to build association between rating, question, and tags. since we are
+        # essentially doing a complicated join, we can utilize mongoDB's aggregation
+        # functions to complete this step instead of doing it locally
 
-        # input: ratings.json, questions_data.json
-        # output: rating_question_tag.json
+        start_time = time.perf_counter()
 
-        # remember that these are lists
-        ratings_data = self.ratings_data_collection.find()
-        questions_data = self.questions_data_collection.find()
-
-        rating_question_tag_data = []
-
-        for question in questions_data:
-            # print(question)
-
-            question_id = question["questionFrontendId"]
-            title = question["questionTitle"]
-            title_slug = question["titleSlug"]
-            link = question["link"]
-            difficulty = question["difficulty"]
-            premium = question["isPaidOnly"]
-            tags = question["topicTags"] # TODO, make this a Tags object
-
-            # TODO: There are questions in questions_data.json that aren't
-            # in ratings.txt. For now, we skip those because we haven't
-            # developed a way to accurately calculate rating for those.
-            # Eventually we will do this through best-fit line of accepted
-            # submission percentage
-            # TODO: this is incredibly slow, because we are calling the db's find_one
-            # method for each question. Find a way to d othis faster
-            rating = self.ratings_data_collection.find_one({'question_id': int(question_id)})
-
-            if rating == None:
-                continue
-
-            question_object_structure = {
-                "question_id": question_id,
-                "title": title,
-                "title_slug": title_slug,
-                "link": link,
-                "rating": rating,
-                "difficulty": difficulty,
-                "premium": premium,
-                "tags": tags,
+        pipeline = [
+            {
+                '$unset': ['questionId','question', 'exampleTestcases', 'hints',
+                           'solution', 'companyTagStats', 'likes', 'dislikes',
+                           'similarQuestions', 'total_acs', 'total_submitted']
+            },
+            {
+                '$addFields': {
+                    'questionFrontendId_int': {'$toInt': '$questionFrontendId'}
+                }
+            },
+            {
+                '$lookup': {
+                    'from': 'ratings_data',
+                    'localField': 'questionFrontendId_int',
+                    'foreignField': 'question_id',
+                    'as': 'joined_docs'
+                }
+            },
+            {
+                '$addFields': {
+                    'joined_docs': {
+                        '$cond': {
+                            # TODO: There are questions in questions_data.json that aren't
+                            # in ratings.txt. For now, we skip those because we haven't
+                            # developed a way to accurately calculate rating for those.
+                            # Eventually we will do this through best-fit line of accepted
+                            # submission percentage
+                            'if': {'$eq': ['$joined_docs', []]},  # Check if joined_docs is empty
+                            'then': [{'rating': 0}],  # If empty, set rating to 0 in a new object in the array
+                            'else': '$joined_docs'  # Otherwise, keep it as is
+                        }
+                    }
+                }
+            },
+            {
+                '$unwind': {
+                    'path': '$joined_docs',
+                    'preserveNullAndEmptyArrays': True  # Preserve documents even if joined_docs is empty
+                }
+            },
+            {
+                '$replaceRoot': {
+                    'newRoot': {
+                        '$mergeObjects': ['$joined_docs', '$$ROOT']  # Merge fields of col1 and joined_docs
+                    }
+                }
+            },
+            {
+                '$unset': ['questionFrontendId_int', 'joined_docs', '_id']
+            },
+            {
+                '$project': {
+                    "question_id": "$questionFrontendId",
+                    "title": "$questionTitle",
+                    "title_slug": "$titleSlug",
+                    "link": "$link",
+                    "rating": "$rating",
+                    "difficulty": "$difficulty",
+                    "premium": "$isPaidOnly",
+                    "tags": "$topicTags"
+                }
+            },
+            {
+                '$out': 'rating_question_tag_data'
             }
+        ]
 
-            rating_question_tag_data.append(question_object_structure)
+        self.questions_data_collection.aggregate(pipeline)
 
-        self.rating_question_tag_data_collection.insert_many(rating_question_tag_data)
+        end_time = time.perf_counter()
 
-        print(f"Successfully pushed to questions_rating database")
+        print(f"Successfully pushed to questions_rating database, took {end_time - start_time}s")
 
     @staticmethod
     def build_user_data(user_discord_id: str, user_data_txt: str):
