@@ -6,7 +6,10 @@ from data import secret as secret
 import discord
 
 def main():
-    setup_bot()
+    # setup_bot()
+
+    builder = Builder()
+    builder.build_question_rating_data()
 
 def setup_bot():
     intents = discord.Intents.default()

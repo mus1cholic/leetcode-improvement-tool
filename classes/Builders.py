@@ -1,7 +1,11 @@
 import json
 import time
 
-from .Tags import Tag, TagsStatistics
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
+
+from .Tags import TagsStatistics
+from data import secret as secret
 
 import utils.utils as utils
 
@@ -11,13 +15,20 @@ This class contains class methods specifically used to modify and check .json fi
 
 class Builder:
     def __init__(self):
-        # TODO: eventually, we want all the json files to be
-        # stored in memory on startup, instead of having to open them
-        # every time
+        client = MongoClient(secret.MONGO_DB_URI, server_api=ServerApi('1'))
 
-        # TODO: eventually eventually, we will use an actual database
-        # (maybe mongoDB) to store these info
-        pass
+        try:
+            client.admin.command('ping')
+            print("Pinged your deployment. You successfully connected to MongoDB!")
+        except Exception as e:
+            print(e)
+
+        db = client["leetcode_improvement_tool"]
+
+        self.user_data_collection = db["user_data"]
+        self.ratings_data_collection = db["ratings_data"]
+        self.questions_data_collection = db["questions_data"]
+        self.rating_question_tag_data_collection = db["rating_question_tag_data"]
 
     @staticmethod
     def build_question_ratings():
@@ -63,27 +74,23 @@ class Builder:
 
         print(f"Successfully parsed questions ratings from ratings.txt, took {end_time - start_time}s")
 
-    @staticmethod
-    def build_question_rating_data():
+    def build_question_rating_data(self):
         # now that we have question bank, we can simplify all of the questions
         # to build association between rating, question, and tags
 
         # input: ratings.json, questions_data.json
         # output: rating_question_tag.json
 
-        start_time = time.perf_counter()
+        # remember that these are lists
+        ratings_data = self.ratings_data_collection.find()
+        questions_data = self.questions_data_collection.find()
 
-        with open("data/ratings.json", "r+") as f:
-            ratings_data = json.load(f)
-
-        with open("data/questions_data.json", "r+") as f:
-            questions_data = json.load(f)
-
-        questions_data = list(questions_data)
-        write_data = {}
+        rating_question_tag_data = []
 
         for question in questions_data:
-            question_id = question["questionFrontendId"] # JSON only use strings as keys
+            # print(question)
+
+            question_id = question["questionFrontendId"]
             title = question["questionTitle"]
             title_slug = question["titleSlug"]
             link = question["link"]
@@ -96,10 +103,12 @@ class Builder:
             # developed a way to accurately calculate rating for those.
             # Eventually we will do this through best-fit line of accepted
             # submission percentage
-            if str(question_id) not in ratings_data:
-                continue
+            # TODO: this is incredibly slow, because we are calling the db's find_one
+            # method for each question. Find a way to d othis faster
+            rating = self.ratings_data_collection.find_one({'question_id': int(question_id)})
 
-            rating = ratings_data[str(question_id)]["rating"]
+            if rating == None:
+                continue
 
             question_object_structure = {
                 "question_id": question_id,
@@ -112,14 +121,11 @@ class Builder:
                 "tags": tags,
             }
 
-            write_data[question_id] = question_object_structure
+            rating_question_tag_data.append(question_object_structure)
 
-        with open("data/rating_question_tag.json", "w+") as f:
-            json.dump(write_data, f, indent=4, separators=(',', ': '))
+        self.rating_question_tag_data_collection.insert_many(rating_question_tag_data)
 
-        end_time = time.perf_counter()
-
-        print(f"Successfully built questions_rating database, took {end_time - start_time}s")
+        print(f"Successfully pushed to questions_rating database")
 
     @staticmethod
     def build_user_data(user_discord_id: str, user_data_txt: str):
@@ -221,3 +227,36 @@ class Builder:
             user_data = json.load(f)
 
         return user_id in user_data
+    
+    @staticmethod
+    def temp_push_data():
+        client = MongoClient(secret.MONGO_DB_URI, server_api=ServerApi('1'))
+
+        try:
+            client.admin.command('ping')
+            print("Pinged your deployment. You successfully connected to MongoDB!")
+        except Exception as e:
+            print(e)
+
+        # DB name
+        db = client["leetcode_improvement_tool"]
+
+        # collection (table) name
+        questions_data_collection = db["user_data"]
+
+        # document (SQL record)
+        with open("data/user_data.json", "r+") as f:
+            user_data = json.load(f)
+
+        # ratings_arr = []
+
+        # for rating in ratings_data:
+        #     rating_object = ratings_data[rating]
+
+        #     ratings_arr.append(rating_object)
+
+        # ratings_arr.sort(key=lambda x: x["question_id"])
+
+        x = questions_data_collection.insert_many(user_data)
+
+        print(x.inserted_ids)
