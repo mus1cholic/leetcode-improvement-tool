@@ -1,6 +1,8 @@
 from discord.ext import commands
 
-from classes.Suggestions import Suggestion
+from typing import Optional
+
+from classes.Suggestions import Suggestion, RecommendationEnum
 
 """
 Contains commands relating to the recommendation system
@@ -23,7 +25,19 @@ class Recommendations(commands.Cog):
         await ctx.send('Command tree synced.')
 
     @commands.hybrid_command()
-    async def recommend(self, ctx: commands.Context, difficulty: str):
+    async def recommend(self, ctx: commands.Context,
+                        difficulty: Optional[RecommendationEnum]):
+        """
+        Recommends a random leetcode question, based on your profile
+
+        Parameters
+        -----------
+        difficulty: RecommendationEnum, default: 2
+            the difficulty of the problem to recommend
+        """
+
+        # TODO: maybe have a simple recommend, and an advanced recommend
+
         rating_range = (1500, 1800)
 
         random_question_id = self.suggestion.suggest_problem(rating_range, "TODO")

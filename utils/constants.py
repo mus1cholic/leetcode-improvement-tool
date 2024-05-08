@@ -1,1 +1,3 @@
 API_BASE_LINK = "http://localhost:3000"
+
+CONTEST_RATING_DEFAULT = 0

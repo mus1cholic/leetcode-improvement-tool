@@ -1,19 +1,27 @@
+import enum
 import json
 import random
 
+class RecommendationEnum(enum.Enum):
+    simple = 1
+    moderate = 2
+    difficult = 3
+
 class Suggestion:
     def __init__(self):
-        with open("data/rating_question_tag.json", "r+") as f:
-            self.questions_data = json.load(f)
+        pass
 
-        # print(self.questions_data)
+        # with open("data/rating_question_tag.json", "r+") as f:
+        #     self.questions_data = json.load(f)
 
-        self.question_ids = [(self.questions_data[x]["rating"],
-                              int(x),
-                              self.questions_data[x]["link"])
-                              for x in self.questions_data.keys()]
+        # # print(self.questions_data)
+
+        # self.question_ids = [(self.questions_data[x]["rating"],
+        #                       int(x),
+        #                       self.questions_data[x]["link"])
+        #                       for x in self.questions_data.keys()]
         
-        self.question_ids.sort(key=lambda x: x[0])
+        # self.question_ids.sort(key=lambda x: x[0])
 
     def suggest_problem(self, rating_range, filter_func):
         range_min, range_max = rating_range

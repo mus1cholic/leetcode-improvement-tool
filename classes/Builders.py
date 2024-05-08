@@ -8,6 +8,7 @@ from .Tags import TagsStatistics
 from data import secret as secret
 
 import utils.utils as utils
+import utils.constants as constants
 
 """
 This class contains class methods specifically used to modify and check .json files
@@ -146,7 +147,7 @@ class Builder:
                 }
             },
             {
-                '$out': 'rating_question_tag_data'
+                '$out': 'rating_question_tag_data' # this replaces the entire collection
             }
         ]
 
@@ -156,59 +157,50 @@ class Builder:
 
         print(f"Successfully pushed to questions_rating database, took {end_time - start_time}s")
 
-    @staticmethod
-    def build_user_data(user_discord_id: str, user_data_txt: str):
-        # using user.txt, builds user database
-
-        # input: user.txt, rating_question_tag.json, user_data.json
-        # output: user_data.json
-
+    def build_user_data(self, user_discord_id: int, user_discord_username: str, user_data_txt: str):
         """
         {
-            "user_name": {
-                "user_name": str,
-                "contest_rating": float,
-                "completed_questions": [question_id],
-                "tags": {
-                    "tag_slug": {
-                        "tag_slug": str,
-                        "tag_rating": float
-                    }
+            "discord_id": long,
+            "discord_username": str, !!
+            "lc_user_name": str,
+            "contest_rating": float,
+            "questions_rating": float, !!
+            "projected_rating": float, !!
+            "completed_questions": [question_ids],
+            "tags": { !!
+                "tag_slug": {
+                    "tag_rating": float,
+                    "completed_questions": [question_ids]
                 }
             }
         }
         """
-        
-        start_time = time.perf_counter()
-
-        with open("data/rating_question_tag.json", "r+") as f:
-            rating_question_data = json.load(f)
-
-        # with open("data/user.txt", "r+") as f:
-        #     user_data = json.load(f)
+        # if contest_rating is 0, projected rating is 70th percentile of questions_rating
+        # if contest_rating < questions_rating, projected rating = 0.75*questions_rating + 0.25*contest_rating
+        # if contest_rating >= questions_rating, projected rating = 0.75*contest_rating + 0.25*questions_rating
 
         user_data = json.loads(user_data_txt)
 
-        with open("data/user_data.json", "r+") as f:
-            write_data = json.load(f)
-
         lc_username = user_data["user_name"]
 
-        # TODO: find a way to not call this in a Builder, we want
-        # parsing calls to only be called in Parsers
-        r = utils.api_get_user_contest_info(lc_username)
-        user_contest_data = r.json()
+        # sanity check
+        if lc_username == "":
+            # TODO: put some error message here back
+            pass
 
-        contest_rating = user_contest_data["contestRating"] if "contestRating" in user_contest_data else 0
-        all_questions = user_data["stat_status_pairs"]
+        user_contest_data_request = utils.api_get_user_contest_info(lc_username)
+        user_contest_data = user_contest_data_request.json()
+        user_contest_rating = user_contest_data.get("contestRating", constants.CONTEST_RATING_DEFAULT)
+
+        user_questions_stats = user_data["stat_status_pairs"]
 
         completed_questions = []
 
-        for question in all_questions:
+        for question in user_questions_stats:
             question_id = question["stat"]["frontend_question_id"]
             completed_status = question["status"]
-            total_acs = question["stat"]["total_acs"]
-            total_submitted = question["stat"]["total_submitted"]
+            # total_acs = question["stat"]["total_acs"]
+            # total_submitted = question["stat"]["total_submitted"]
 
             if completed_status != "ac":
                 continue
@@ -224,68 +216,30 @@ class Builder:
         user_tags = user_tags_stats.to_object()
 
         user_data_structure = {
-            "user_name": lc_username,
-            "contest_rating": contest_rating,
-            "completed_questions": completed_questions,
-            "tags": user_tags
+            "discord_id": user_discord_id,
+            "discord_username": user_discord_username,
+            "lc_user_name": lc_username,
+            "contest_rating": user_contest_rating,
+            "questions_rating": float, # TODO
+            "projected_rating": float, # TODO
+            "completed_questions": [completed_questions],
+            # "tags": { !!
+            #     "tag_slug": {
+            #         "tag_rating": float,
+            #         "completed_questions": [question_ids]
+            #     }
+            # }
         }
 
-        write_data[user_discord_id] = user_data_structure
+        print(user_data_structure)
 
-        with open("data/user_data.json", "w+") as f:
-            json.dump(write_data, f, indent=4, separators=(',', ': '))
+        return
 
-        end_time = time.perf_counter()
+        self.user_data_collection.insert_one(user_data_structure)
 
-        print(f"Successfully built user database, took {end_time - start_time}s")
+        print(f"Successfully built user database")
 
-    @staticmethod
-    def clean_up_data():
-        # first thing is to make sure rating_question_tag is sorted by key
-        with open("data/rating_question_tag.json", "r+") as f:
-            rating_question_data = json.load(f)
+    def check_user_exist(self, user_id: int):
+        result = self.user_data_collection.find_one({"discord_id": user_id})
 
-        write_data = dict(sorted(rating_question_data.items(), key=lambda x: int(x[0])))
-
-        with open("data/rating_question_tag.json", "w+") as f:
-            json.dump(write_data, f, indent=4, separators=(',', ': '))
-
-    @staticmethod
-    def check_user_exist(user_id: str):
-        with open("data/user.txt", "r+") as f:
-            user_data = json.load(f)
-
-        return user_id in user_data
-    
-    @staticmethod
-    def temp_push_data():
-        client = MongoClient(secret.MONGO_DB_URI, server_api=ServerApi('1'))
-
-        try:
-            client.admin.command('ping')
-            print("Pinged your deployment. You successfully connected to MongoDB!")
-        except Exception as e:
-            print(e)
-
-        # DB name
-        db = client["leetcode_improvement_tool"]
-
-        # collection (table) name
-        questions_data_collection = db["user_data"]
-
-        # document (SQL record)
-        with open("data/user_data.json", "r+") as f:
-            user_data = json.load(f)
-
-        # ratings_arr = []
-
-        # for rating in ratings_data:
-        #     rating_object = ratings_data[rating]
-
-        #     ratings_arr.append(rating_object)
-
-        # ratings_arr.sort(key=lambda x: x["question_id"])
-
-        x = questions_data_collection.insert_many(user_data)
-
-        print(x.inserted_ids)
+        return result != None

@@ -6,10 +6,11 @@ from data import secret as secret
 import discord
 
 def main():
-    # setup_bot()
+    # TODO: eventually do npm run dev on another thread here
+    # builder = Builder()
+    # builder.build_user_data()
 
-    builder = Builder()
-    builder.build_question_rating_data()
+    setup_bot()
 
 def setup_bot():
     intents = discord.Intents.default()

@@ -1,3 +1,7 @@
+import discord
+
+from typing import Optional
+
 from discord.ext import commands
 
 from classes.Builders import Builder
@@ -10,9 +14,14 @@ Contains commands relating to setting up a user profile
 class UserSetup(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot: commands.Bot = bot
+        self.builder: Builder = Builder()
 
     @commands.hybrid_command()
     async def setupprofile(self, ctx: commands.Context):
+        """
+        Instructions on how to set up your profile
+        """
+
         # TODO: use an embed eventually
 
         response_str = "To set up your profile, you first need to go to " + \
@@ -31,38 +40,45 @@ class UserSetup(commands.Cog):
         await ctx.send(response_str)
 
     @commands.hybrid_command()
-    async def updateprofile(self, ctx: commands.Context):
+    async def updateprofile(self, ctx: commands.Context, attachment: Optional[discord.Attachment]):
+        """
+        Updates your profile
+
+        Parameters
+        -----------
+        attachment: discord.Attachment, optional
+            your algorithms txt file
+        """
         pass
 
     @commands.hybrid_command()
-    async def createprofile(self, ctx: commands.Context):
-        discord_user_id = str(ctx.message.author.id)
+    async def createprofile(self, ctx: commands.Context, attachment: discord.Attachment):
+        """
+        Creates your profile
 
-        user_exists = Builder.check_user_exist(discord_user_id)
+        Parameters
+        -----------
+        attachment: discord.Attachment
+            your algorithms txt file
+        """
 
-        # TODO: put all this sanity check in another place
+        discord_user_id = ctx.message.author.id
+        discord_username = ctx.message.author.name
 
-        if user_exists:
-            await ctx.send(f"{ctx.message.author.mention}, your profile already exists." + 
-                           "If you would like to update your profile instead, use the " +
-                           "/updateprofile command.")
-            return
-        
+        print(discord_username)
+
         attachments = ctx.message.attachments
 
-        if not attachments:
-            await ctx.send(f"{ctx.message.author.mention}, please attach your txt file " +
-                           "as instructed in /setupprofile.")
-            return
-        
-        if len(attachments) > 1:
-            await ctx.send(f"{ctx.message.author.mention}, please only include one " +
-                           "attachment.")
+        # TODO: put all this sanity check in another place
+        if self.builder.check_user_exist(discord_user_id):
+            await ctx.send(f"{ctx.message.author.mention}, your profile already exists. " + 
+                           "If you would like to update your profile instead, use the " +
+                           "/updateprofile command.")
             return
         
         file_url = attachments[0]
         file_content = discord_get_attachment_content(file_url)
 
-        Builder.build_user_data(discord_user_id, file_content)
+        self.builder.build_user_data(discord_user_id, discord_username, file_content)
 
         await ctx.send(f"{ctx.message.author.mention}, your data has been saved to the database.")

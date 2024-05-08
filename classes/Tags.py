@@ -1,4 +1,15 @@
+import enum
+
 import numpy as np
+
+# class TagsEnum(enum.Enum):
+#     Array = 1
+#     String = 2
+#     HashTable = 3
+#     Matrix = 4
+#     Stack = 5
+#     Queue = 6
+#     LinkedList = 7
 
 class TagsStatistics:
     def __init__(self, user_completed_questions, rating_question_data):
