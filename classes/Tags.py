@@ -2,55 +2,72 @@ import enum
 
 import numpy as np
 
-# class TagsEnum(enum.Enum):
-#     Array = 1
-#     String = 2
-#     HashTable = 3
-#     Matrix = 4
-#     Stack = 5
-#     Queue = 6
-#     LinkedList = 7
+from pymongo.collection import Collection
+
+class TagsEnum(enum.StrEnum):
+    Array = "array"
+    String = "string"
+    HashTable = "hash-table"
+    Matrix = "matrix"
+    Stack = "stack"
+    Queue = "queue"
+    LinkedList = "linked-list"
+
+    TwoPointers = "two-pointers"
+    BinarySearch = "binary-search"
+    SlidingWindow = "sliding-window"
+    Tree = "tree"
+    HeapPriorityQueue = "heap-priority-queue"
+    Graph = "graph"
+    Math = "math"
+
+    Backtracking = "backtracking"
+    DynamicProgramming = "dynamic-programming"
+    BitManipulation = "bit-manipulation"
+    TopologicalSort = "topological-sort"
+
+    Overall = "overall"
 
 class TagsStatistics:
-    def __init__(self, user_completed_questions, rating_question_data):
+    def __init__(self, user_completed_questions: list,
+                 rating_question_tag_data_collection: Collection):
         self.user_completed_questions = user_completed_questions
-        self.rating_question_data = rating_question_data
+        self.rating_question_tag_data_collection = rating_question_tag_data_collection
 
-        self.tags = {}
-        self.output = {}
+        self.tags: dict[TagsEnum, Tag] = {}
+        self.output: list[dict[str: any]] = []
 
-        self.tags["array"] = ArrayTag()
-        self.tags["string"] = StringTag()
-        self.tags["hash-table"] = HashTableTag()
-        self.tags["matrix"] = MatrixTag()
-        self.tags["stack"] = StackTag()
-        self.tags["queue"] = QueueTag()
-        self.tags["linked-list"] = LinkedListTag()
+        self.tags[TagsEnum.Array] = ArrayTag()
+        self.tags[TagsEnum.String] = StringTag()
+        self.tags[TagsEnum.HashTable] = HashTableTag()
+        self.tags[TagsEnum.Matrix] = MatrixTag()
+        self.tags[TagsEnum.Stack] = StackTag()
+        self.tags[TagsEnum.Queue] = QueueTag()
+        self.tags[TagsEnum.LinkedList] = LinkedListTag()
 
-        self.tags["two-pointers"] = TwoPointersTag()
-        self.tags["binary-search"] = BinarySearchTag()
-        self.tags["sliding-window"] = SlidingWindowTag()
-        self.tags["tree"] = TreeTag()
-        self.tags["heap-priority-queue"] = HeapTag()
-        self.tags["graph"] = GraphTag()
-        self.tags["math"] = MathTag()
+        self.tags[TagsEnum.TwoPointers] = TwoPointersTag()
+        self.tags[TagsEnum.BinarySearch] = BinarySearchTag()
+        self.tags[TagsEnum.SlidingWindow] = SlidingWindowTag()
+        self.tags[TagsEnum.Tree] = TreeTag()
+        self.tags[TagsEnum.HeapPriorityQueue] = HeapTag()
+        self.tags[TagsEnum.Graph] = GraphTag()
+        self.tags[TagsEnum.Math] = MathTag()
 
-        self.tags["backtracking"] = BacktrackingTag()
-        self.tags["dynamic-programming"] = DynamicProgrammingTag()
-        self.tags["bit-manipulation"] = BitManipulationTag()
-        self.tags["topological-sort"] = TopologicalSortTag()
+        self.tags[TagsEnum.Backtracking] = BacktrackingTag()
+        self.tags[TagsEnum.DynamicProgramming] = DynamicProgrammingTag()
+        self.tags[TagsEnum.BitManipulation] = BitManipulationTag()
+        self.tags[TagsEnum.TopologicalSort] = TopologicalSortTag()
 
-        self.tags["overall"] = OverallTag()
+        self.tags[TagsEnum.Overall] = OverallTag()
 
     def build_tag_data(self):
-        for question_id in self.user_completed_questions:
-            if str(question_id) not in self.rating_question_data:
-                continue
+        results = list(self.rating_question_tag_data_collection.find(
+            {"question_id": {"$in": self.user_completed_questions}}))
 
-            question_object = self.rating_question_data[str(question_id)]
-
-            question_rating = question_object["rating"]
-            question_tags = question_object["tags"]
+        for result in results:
+            question_id = result["question_id"]
+            question_rating = result["rating"]
+            question_tags = result["tags"]
 
             for question_tag in question_tags:
                 tag_slug = question_tag["slug"]
@@ -60,24 +77,28 @@ class TagsStatistics:
                     continue
 
                 self.tags[tag_slug].add_rating(question_rating, question_id)
-                self.tags["overall"].add_rating(question_rating, question_id)
+                self.tags[TagsEnum.Overall].add_rating(question_rating, question_id)
 
-        for tag_slug in self.tags:
-            tag_class = self.tags[tag_slug]
+        for tag in self.tags:
+            tag_class = self.tags[tag]
 
             tag_class.calculate_rating()
 
-            self.output[tag_slug] = tag_class.tag_rating
+            self.output.append({
+                "slug": tag_class.slug,
+                "difficulty": tag_class.tag_difficulty,
+                "rating": tag_class.tag_rating,
+                "questions": tag_class.questions
+            })
 
-    def to_object(self):
-        return self.output
+        # print(self.output)
 
 class Tag:
     def __init__(self):
         self.slug = ""
         self.questions = []
         self.ratings = []
-        self.tag_rating = 0
+        self.tag_rating = 0.0
         self.tag_difficulty = ""
 
     def add_rating(self, rating, question_id):
@@ -85,16 +106,20 @@ class Tag:
         self.ratings.append(rating)
 
     def calculate_rating(self):
-        # The user must have done at least 2 problems with the given tag
-        # for there to be a rating calculated
-        if len(self.ratings) < 3:
-            self.tag_rating = 0
-            return
-
         np_ratings = np.array(self.ratings)
-        self.tag_rating = np.percentile(np_ratings, 75) # 75th percentile
+        np_ratings = np_ratings[np_ratings != 0] # filter out 0s
+
+        # The user must have done at least 2 problems with the given tag
+        # that has rating data for there to be a rating calculated
+        if len(np_ratings) < 3:
+            self.tag_rating = 0.0
+            return
+        
+        self.tag_rating = np.percentile(np_ratings, 80) # 80th percentile
 
 class ArrayTag(Tag):
+    slug = "array"
+
     def __init__(self):
         super().__init__()
 

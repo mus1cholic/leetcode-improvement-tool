@@ -8,6 +8,7 @@ import discord
 def main():
     # TODO: eventually do npm run dev on another thread here
     # builder = Builder()
+    # builder.build_question_rating_data()
     # builder.build_user_data()
 
     setup_bot()

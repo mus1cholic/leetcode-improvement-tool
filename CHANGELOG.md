@@ -1,6 +1,22 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2024-05-08
+ 
+### Added
+
+- Added full implementation for user to upload their data to db
+- Added user class to deal with complicated logics for a user
+- Added contest ratings and projected ratings
+ 
+### Changed
+
+- Changed question_id field in rating_question_tag_data collection to be of type int
+- Changed Tags class to use enum
+- Changed Tags class methods to use mongoDB
+ 
+### Fixed
+
 ## [0.3.2] - 2024-05-08
  
 ### Added

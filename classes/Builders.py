@@ -5,10 +5,8 @@ from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
 from .Tags import TagsStatistics
+from .Users import User
 from data import secret as secret
-
-import utils.utils as utils
-import utils.constants as constants
 
 """
 This class contains class methods specifically used to modify and check .json files
@@ -91,13 +89,13 @@ class Builder:
             },
             {
                 '$addFields': {
-                    'questionFrontendId_int': {'$toInt': '$questionFrontendId'}
+                    'question_id': {'$toInt': '$questionFrontendId'}
                 }
             },
             {
                 '$lookup': {
                     'from': 'ratings_data',
-                    'localField': 'questionFrontendId_int',
+                    'localField': 'question_id',
                     'foreignField': 'question_id',
                     'as': 'joined_docs'
                 }
@@ -132,11 +130,11 @@ class Builder:
                 }
             },
             {
-                '$unset': ['questionFrontendId_int', 'joined_docs', '_id']
+                '$unset': ['questionFrontendId', 'joined_docs', '_id']
             },
             {
                 '$project': {
-                    "question_id": "$questionFrontendId",
+                    "question_id": "$question_id",
                     "title": "$questionTitle",
                     "title_slug": "$titleSlug",
                     "link": "$link",
@@ -158,86 +156,14 @@ class Builder:
         print(f"Successfully pushed to questions_rating database, took {end_time - start_time}s")
 
     def build_user_data(self, user_discord_id: int, user_discord_username: str, user_data_txt: str):
-        """
-        {
-            "discord_id": long,
-            "discord_username": str, !!
-            "lc_user_name": str,
-            "contest_rating": float,
-            "questions_rating": float, !!
-            "projected_rating": float, !!
-            "completed_questions": [question_ids],
-            "tags": { !!
-                "tag_slug": {
-                    "tag_rating": float,
-                    "completed_questions": [question_ids]
-                }
-            }
-        }
-        """
-        # if contest_rating is 0, projected rating is 70th percentile of questions_rating
-        # if contest_rating < questions_rating, projected rating = 0.75*questions_rating + 0.25*contest_rating
-        # if contest_rating >= questions_rating, projected rating = 0.75*contest_rating + 0.25*questions_rating
+        user = User(user_discord_id, user_discord_username, user_data_txt, self.rating_question_tag_data_collection)
+        user.build_user()
 
-        user_data = json.loads(user_data_txt)
-
-        lc_username = user_data["user_name"]
-
-        # sanity check
-        if lc_username == "":
-            # TODO: put some error message here back
-            pass
-
-        user_contest_data_request = utils.api_get_user_contest_info(lc_username)
-        user_contest_data = user_contest_data_request.json()
-        user_contest_rating = user_contest_data.get("contestRating", constants.CONTEST_RATING_DEFAULT)
-
-        user_questions_stats = user_data["stat_status_pairs"]
-
-        completed_questions = []
-
-        for question in user_questions_stats:
-            question_id = question["stat"]["frontend_question_id"]
-            completed_status = question["status"]
-            # total_acs = question["stat"]["total_acs"]
-            # total_submitted = question["stat"]["total_submitted"]
-
-            if completed_status != "ac":
-                continue
-
-            completed_questions.append(question_id)
-
-        completed_questions.sort()
-
-        # Calculate individual tag rating
-
-        user_tags_stats = TagsStatistics(completed_questions, rating_question_data)
-        user_tags_stats.build_tag_data()
-        user_tags = user_tags_stats.to_object()
-
-        user_data_structure = {
-            "discord_id": user_discord_id,
-            "discord_username": user_discord_username,
-            "lc_user_name": lc_username,
-            "contest_rating": user_contest_rating,
-            "questions_rating": float, # TODO
-            "projected_rating": float, # TODO
-            "completed_questions": [completed_questions],
-            # "tags": { !!
-            #     "tag_slug": {
-            #         "tag_rating": float,
-            #         "completed_questions": [question_ids]
-            #     }
-            # }
-        }
-
-        print(user_data_structure)
-
-        return
+        user_data_structure = user.output_user_data_structure()
 
         self.user_data_collection.insert_one(user_data_structure)
 
-        print(f"Successfully built user database")
+        print(f"Successfully built user database for user {user_discord_username}")
 
     def check_user_exist(self, user_id: int):
         result = self.user_data_collection.find_one({"discord_id": user_id})

@@ -22,8 +22,6 @@ class UserSetup(commands.Cog):
         Instructions on how to set up your profile
         """
 
-        # TODO: use an embed eventually
-
         response_str = "To set up your profile, you first need to go to " + \
                         "https://leetcode.com/api/problems/algorithms/. Ensured " + \
                         "that you are logged in and that the \"user_name\" field " + \
@@ -64,8 +62,6 @@ class UserSetup(commands.Cog):
 
         discord_user_id = ctx.message.author.id
         discord_username = ctx.message.author.name
-
-        print(discord_username)
 
         attachments = ctx.message.attachments
 
