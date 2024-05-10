@@ -5,6 +5,8 @@ from typing import Optional
 from classes.Suggestions import Suggestion, RecommendationEnum
 from classes.Tags import TagsEnum
 
+from db.db import Database
+
 """
 Contains commands relating to the recommendation system
 """
@@ -12,6 +14,8 @@ Contains commands relating to the recommendation system
 class Recommendations(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot: commands.Bot = bot
+        self.db: Database = Database()
+        
         self.suggestion: Suggestion = Suggestion()
 
     @commands.command()
@@ -30,20 +34,16 @@ class Recommendations(commands.Cog):
     async def recommend(self, ctx: commands.Context):
         """
         Recommends a random leetcode question based on your profile
-
-        Parameters
-        -----------
-        difficulty: RecommendationEnum, default: 2
-            the difficulty of the problem to recommend
         """
 
-        # TODO: maybe have a simple recommend, and an advanced recommend
+        discord_user_id = ctx.message.author.id
 
-        rating_range = (1500, 1800)
+        result = self.suggestion.suggest_problem(discord_user_id)
 
-        random_question_id = self.suggestion.suggest_problem(rating_range, "TODO")
+        message_string = f"Here's a problem for you: {result['link']}\n" + \
+            f"Rating: ||{int(result['rating'])}||"
 
-        await ctx.send(random_question_id)
+        await ctx.send(message_string)
 
     @commands.hybrid_command()
     async def advancedrecommend(self, ctx: commands.Context,
@@ -57,7 +57,7 @@ class Recommendations(commands.Cog):
         difficulty: RecommendationEnum, default: 2
             the difficulty of the problem to recommend
 
-        tags: TagsEnum, optional
+        tags: TagsEnum, default: Overall
             a multiple-choice for all the tags to include
         """
 

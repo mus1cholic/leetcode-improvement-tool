@@ -2,6 +2,8 @@ import enum
 import json
 import random
 
+from db.db import Database
+
 class RecommendationEnum(enum.Enum):
     simple = 1
     moderate = 2
@@ -9,68 +11,45 @@ class RecommendationEnum(enum.Enum):
 
 class Suggestion:
     def __init__(self):
-        pass
+        self.db: Database = Database()
 
-        # with open("data/rating_question_tag.json", "r+") as f:
-        #     self.questions_data = json.load(f)
+    def suggest_problem(self,
+                        discord_user_id: int,
+                        difficulty: RecommendationEnum = RecommendationEnum.moderate):
+        # TODO: customizable options
 
-        # # print(self.questions_data)
-
-        # self.question_ids = [(self.questions_data[x]["rating"],
-        #                       int(x),
-        #                       self.questions_data[x]["link"])
-        #                       for x in self.questions_data.keys()]
+        user_result = self.db.find_user(discord_user_id)
         
-        # self.question_ids.sort(key=lambda x: x[0])
+        if user_result == None:
+            # TODO: write some code to check whether user has been registered
+            return
 
-    def suggest_problem(self, rating_range, filter_func):
-        range_min, range_max = rating_range
-
-        # binary search
-        left = 0
-        right = len(self.question_ids) + 1
-
-        def find_leftmost(k):
-            return self.question_ids[k][0] >= range_min
-
-        # find leftmost index that is in given range
-        while left < right:
-            mid = left + (right - left) // 2
-
-            if find_leftmost(mid):
-                right = mid
-            else:
-                left = mid + 1
-
-        leftmost_index = left
-
-        left = leftmost_index
-        right = len(self.question_ids) + 1
-
-        def find_rightmost(k):
-            return self.question_ids[k][0] >= range_max
+        user_rating = user_result["projected_rating"]
+        user_completed_questions = set(user_result["completed_questions"])
         
-        # find leftmost index that is bigger than range_max
-        while left < right:
-            mid = left + (right - left) // 2
+        match difficulty:
+            case RecommendationEnum.simple:
+                rating_min = user_rating - 300
+                rating_max = user_rating - 100
+            case RecommendationEnum.moderate:
+                rating_min = user_rating - 100
+                rating_max = user_rating + 100
+            case RecommendationEnum.difficult:
+                rating_min = user_rating + 100
+                rating_max = user_rating + 300
+            case _:
+                pass
 
-            if find_rightmost(mid):
-                right = mid
-            else:
-                left = mid + 1
+        result = set(self.db.find_problems(rating_min, rating_max))
 
-        rightmost_index = left - 1
+        # we need to filter out questions that the user has already completed
+        result = list(result.difference(result & user_completed_questions))
 
-        random_question_index = random.randint(leftmost_index, rightmost_index)
+        random_question_id = random.choice(result)
 
-        return self.question_ids[random_question_index][2]
+        question = self.db.find_question(random_question_id)
 
-
-    def rating_range_filter(self, range):
-        # suggests a problem based on some criteria
-        # to be overriden by a subclass
-        pass
-
+        return question
 
 class WeakSkillsetSuggestion(Suggestion):
     def __init__(self):

@@ -5,6 +5,9 @@ from typing import Optional
 from discord.ext import commands
 
 from classes.Builders import Builder
+
+from db.db import Database
+
 from utils.utils import discord_get_attachment_content
 
 """
@@ -14,6 +17,8 @@ Contains commands relating to setting up a user profile
 class UserSetup(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot: commands.Bot = bot
+        self.db: Database = Database()
+
         self.builder: Builder = Builder()
 
     @commands.hybrid_command()

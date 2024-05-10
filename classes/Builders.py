@@ -1,12 +1,11 @@
 import json
 import time
 
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
-
 from .Tags import TagsStatistics
 from .Users import User
 from data import secret as secret
+
+from db.db import Database
 
 """
 This class contains class methods specifically used to modify and check .json files
@@ -14,20 +13,7 @@ This class contains class methods specifically used to modify and check .json fi
 
 class Builder:
     def __init__(self):
-        client = MongoClient(secret.MONGO_DB_URI, server_api=ServerApi('1'))
-
-        try:
-            client.admin.command('ping')
-            print("Pinged your deployment. You successfully connected to MongoDB!")
-        except Exception as e:
-            print(e)
-
-        db = client["leetcode_improvement_tool"]
-
-        self.user_data_collection = db["user_data"]
-        self.ratings_data_collection = db["ratings_data"]
-        self.questions_data_collection = db["questions_data"]
-        self.rating_question_tag_data_collection = db["rating_question_tag_data"]
+        self.db: Database = Database()
 
     @staticmethod
     def build_question_ratings():
@@ -149,23 +135,23 @@ class Builder:
             }
         ]
 
-        self.questions_data_collection.aggregate(pipeline)
+        self.db.questions_data_collection.aggregate(pipeline)
 
         end_time = time.perf_counter()
 
         print(f"Successfully pushed to questions_rating database, took {end_time - start_time}s")
 
     def build_user_data(self, user_discord_id: int, user_discord_username: str, user_data_txt: str):
-        user = User(user_discord_id, user_discord_username, user_data_txt, self.rating_question_tag_data_collection)
+        user = User(user_discord_id, user_discord_username, user_data_txt, self.db.rating_question_tag_data_collection)
         user.build_user()
 
         user_data_structure = user.output_user_data_structure()
 
-        self.user_data_collection.insert_one(user_data_structure)
+        self.db.user_data_collection.insert_one(user_data_structure)
 
         print(f"Successfully built user database for user {user_discord_username}")
 
     def check_user_exist(self, user_id: int):
-        result = self.user_data_collection.find_one({"discord_id": user_id})
+        result = self.db.user_data_collection.find_one({"discord_id": user_id})
 
         return result != None

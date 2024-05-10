@@ -64,7 +64,11 @@ class User():
         # if contest_rating >= questions_rating, projected rating = 0.75*contest_rating + 0.25*questions_rating
 
         if self.contest_rating == 0.0:
-            self.projected_rating = self.questions_rating - 100
+            if self.questions_rating == 0.0:
+                # if you have no questions done, your default projected rating is 1350
+                self.projected_rating = 1350 
+            else:
+                self.projected_rating = self.questions_rating - 100
         elif self.contest_rating < self.questions_rating:
             self.projected_rating = 0.75 * self.questions_rating + 0.25 * self.contest_rating
         elif self.contest_rating >= self.questions_rating:

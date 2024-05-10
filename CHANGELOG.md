@@ -1,7 +1,21 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [0.4.0] - 2024-05-08
+## [0.4.1] - 2024-05-10
+ 
+### Added
+
+- Added functionality for a simple recommend
+- Added a check for a completely new profile with no questions done
+ 
+### Changed
+
+- Changed db init design to use a standalone client class instead of being initialized
+in individual files
+ 
+### Fixed
+
+## [0.4.0] - 2024-05-09
  
 ### Added
 
