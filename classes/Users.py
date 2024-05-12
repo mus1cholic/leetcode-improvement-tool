@@ -74,6 +74,13 @@ class User():
         elif self.contest_rating >= self.questions_rating:
             self.projected_rating = 0.75 * self.contest_rating + 0.25 * self.questions_rating
 
+    def build_preferences(self):
+        settings = {
+            "blacklisted_tags": []
+        }
+
+        self.settings = settings
+
     def output_user_data_structure(self):
         user_data_structure = {
             "discord_id": self.discord_id,
@@ -83,7 +90,8 @@ class User():
             "questions_rating": self.questions_rating,
             "projected_rating": self.projected_rating,
             "completed_questions": self.completed_questions,
-            "tags": self.user_tags_stats.output
+            "tags": self.user_tags_stats.output,
+            "preferences": self.settings
         }
 
         return user_data_structure

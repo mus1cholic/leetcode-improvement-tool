@@ -1,6 +1,20 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.4.2] - 2024-05-12
+ 
+### Added
+
+- Added a mention whenever users gets recommended a problem
+- Added frontend UI of removing/adding tags to your recommendation list
+- Added Profile class with no functionality
+ 
+### Changed
+
+- Changed user creation to also include saving preferences
+ 
+### Fixed
+
 ## [0.4.1] - 2024-05-10
  
 ### Added

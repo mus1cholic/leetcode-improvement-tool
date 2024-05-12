@@ -5,6 +5,9 @@ from typing import Optional
 from discord.ext import commands
 
 from classes.Builders import Builder
+from classes.Tags import TagsEnum
+
+from bot.cogs.Views.AddRemoveTagView import AddRemoveTagView
 
 from db.db import Database
 
@@ -43,16 +46,28 @@ class UserSetup(commands.Cog):
         await ctx.send(response_str)
 
     @commands.hybrid_command()
+    async def removetag(self, ctx: commands.Context):
+        """
+        Removes a tag from your recommendations
+        """
+
+        view = AddRemoveTagView("Option 1", "Option 2", "Option 3")
+
+        message = await ctx.send(view=view)
+
+        view.message = message
+
+    @commands.hybrid_command()
     async def updateprofile(self, ctx: commands.Context, attachment: Optional[discord.Attachment]):
         """
-        Updates your profile
+        Updates your profile, TODO
 
         Parameters
         -----------
         attachment: discord.Attachment, optional
-            your algorithms txt file
+            Your algorithms txt file
         """
-        pass
+        await ctx.send("TODO")
 
     @commands.hybrid_command()
     async def createprofile(self, ctx: commands.Context, attachment: discord.Attachment):
@@ -62,7 +77,7 @@ class UserSetup(commands.Cog):
         Parameters
         -----------
         attachment: discord.Attachment
-            your algorithms txt file
+            Your algorithms txt file
         """
 
         discord_user_id = ctx.message.author.id

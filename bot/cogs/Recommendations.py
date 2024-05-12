@@ -40,7 +40,8 @@ class Recommendations(commands.Cog):
 
         result = self.suggestion.suggest_problem(discord_user_id)
 
-        message_string = f"Here's a problem for you: {result['link']}\n" + \
+        message_string = f"{ctx.message.author.mention}, here's " + \
+            "a problem for you: {result['link']}\n" + \
             f"Rating: ||{int(result['rating'])}||"
 
         await ctx.send(message_string)
