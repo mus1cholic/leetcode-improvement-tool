@@ -1,7 +1,13 @@
+import enum
+
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
 from data import secret as secret
+
+# TODO: create enum class of fields
+class DatabaseEnum(enum.StrEnum):
+    pass
 
 class Database(object):
     client = None
@@ -41,6 +47,21 @@ class Database(object):
         return result
     
     @classmethod
+    def update_user_field(cls, _id: int, field_name: str, field_val):
+        query = {
+            '_id': _id
+        }
+        pipeline = {
+            '$set': {
+                field_name: field_val
+            }
+        }
+
+        result = cls.user_data_collection.update_one(query, pipeline)
+
+        return result
+    
+    @classmethod
     def find_question(cls, question_id: int):
         query = {
             "question_id": question_id
@@ -51,11 +72,14 @@ class Database(object):
         return result
     
     @classmethod
-    def find_problems(cls, rating_min: float, rating_max: float):
+    def find_problems(cls, rating_min: float, rating_max: float, blacklisted_tags=[]):
         query = {
             "rating": {
                 "$gte": rating_min,
                 "$lte": rating_max
+            },
+            "tags": {
+                "$nin": blacklisted_tags
             }
         }
 

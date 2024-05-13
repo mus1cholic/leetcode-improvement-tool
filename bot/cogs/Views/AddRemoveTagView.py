@@ -3,17 +3,31 @@ import discord
 
 from classes.Tags import TagsEnum
 
+from db.db import Database
+
 from functools import partial
 
 class AddRemoveTagView(View):
-    def __init__(self, *options, timeout=30):
+    def __init__(self, user_result, timeout=30):
         super().__init__(timeout=timeout)
-        self.selected_options = []
+
+        # get the results of settings
+        self.db = Database()
+        self.user_db_id = user_result['_id']
+        self.blacklisted_tags: list[TagsEnum] = user_result["settings"]["blacklisted_tags"]
+
         self.message = None
 
         for (i, tag) in enumerate(TagsEnum):
-            button = Button(label=tag.name, style=discord.ButtonStyle.green)
-            button.callback = partial(self.tag_callback, tag)
+            if tag == TagsEnum.Overall:
+                continue
+            
+            if tag in self.blacklisted_tags:
+                button = Button(label=tag.name, style=discord.ButtonStyle.red)
+            else:
+                button = Button(label=tag.name, style=discord.ButtonStyle.green)
+
+            button.callback = partial(self.tag_callback, button, tag)
             button.row = i // 5
             self.add_item(button)
 
@@ -23,13 +37,34 @@ class AddRemoveTagView(View):
         self.submit_button.row = 1 + (1 + i) // 5
         self.add_item(self.submit_button)
 
-    async def tag_callback(self, tag: TagsEnum, interaction: discord.Interaction):
-        print(tag)
+    async def tag_callback(self, button: Button, tag: TagsEnum, interaction: discord.Interaction):
+        if tag in self.blacklisted_tags:
+            self.blacklisted_tags.remove(tag)
+            button.style = discord.ButtonStyle.green
+        else:
+            self.blacklisted_tags.append(tag)
+            button.style = discord.ButtonStyle.red
 
-        await interaction.response.send_message(f"Added", ephemeral=True)
+        await interaction.response.edit_message(view=self)
 
     async def submit_callback(self, interaction: discord.Interaction):
-        await interaction.response.send_message(f"Final selections: {', '.join(self.selected_options)}", ephemeral=False)
+        field_name = "settings"
+        field_val = {
+            "blacklisted_tags": self.blacklisted_tags
+        }
+
+        result = self.db.update_user_field(self.user_db_id, field_name, field_val)
+
+        if result == None:
+            await interaction.response.send_message(f"Database error occured", ephemeral=True)
+
+            return
+
+        await interaction.response.send_message(f"Your settings have been updated. " + \
+                                                "You will now not see the following tags " + \
+                                                "when you get recommended a problem: " + \
+                                                f"{', '.join(self.blacklisted_tags)}",
+                                                ephemeral=True)
         self.stop()
 
     async def on_timeout(self):

@@ -26,6 +26,7 @@ class Suggestion:
 
         user_rating = user_result["projected_rating"]
         user_completed_questions = set(user_result["completed_questions"])
+        user_blacklisted_tags = user_result["settings"]["blacklisted_tags"]
         
         match difficulty:
             case RecommendationEnum.simple:
@@ -40,16 +41,25 @@ class Suggestion:
             case _:
                 pass
 
-        result = set(self.db.find_problems(rating_min, rating_max))
+        result = set(self.db.find_problems(rating_min, rating_max, user_blacklisted_tags))
 
         # we need to filter out questions that the user has already completed
         result = list(result.difference(result & user_completed_questions))
+
+        if not result:
+            response = "could not find a result for you! Maybe try including " + \
+                       "more tags or expanding your search range..."
+            
+            return response
 
         random_question_id = random.choice(result)
 
         question = self.db.find_question(random_question_id)
 
-        return question
+        response = f"here's a problem for you: {question['link']}\n" + \
+                   f"Rating: ||{int(question['rating'])}||"
+
+        return response
 
 class WeakSkillsetSuggestion(Suggestion):
     def __init__(self):

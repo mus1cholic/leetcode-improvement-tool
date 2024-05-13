@@ -1,6 +1,23 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.4.3] - 2024-05-13
+
+### Added
+
+- Added total functionality of blacklisting some of your tags to never
+see a problem with a certain tag
+ 
+### Changed
+
+- Changed naming of preferences to settings for clearer idea
+- Changed tags field of rating question tag db to be consistent (using an array of slugs)
+ 
+### Fixed
+
+- Fixed build_preferences() method not being called in Users.py
+- Fixed fstring for recommending a problem
+
 ## [0.4.2] - 2024-05-12
  
 ### Added

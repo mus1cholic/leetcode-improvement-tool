@@ -1,9 +1,7 @@
 import json
 import time
 
-from .Tags import TagsStatistics
 from .Users import User
-from data import secret as secret
 
 from db.db import Database
 
@@ -116,7 +114,18 @@ class Builder:
                 }
             },
             {
-                '$unset': ['questionFrontendId', 'joined_docs', '_id']
+                '$addFields': {
+                    "tags": {
+                        "$map": {
+                            "input": "$topicTags",
+                            "as": "tag",
+                            "in": "$$tag.slug"
+                        }
+                    }
+                }
+            },
+            {
+                '$unset': ['questionFrontendId', 'joined_docs', '_id', 'topicTags']
             },
             {
                 '$project': {
@@ -127,7 +136,7 @@ class Builder:
                     "rating": "$rating",
                     "difficulty": "$difficulty",
                     "premium": "$isPaidOnly",
-                    "tags": "$topicTags"
+                    "tags": "$tags"
                 }
             },
             {

@@ -69,9 +69,7 @@ class TagsStatistics:
             question_rating = result["rating"]
             question_tags = result["tags"]
 
-            for question_tag in question_tags:
-                tag_slug = question_tag["slug"]
-
+            for tag_slug in question_tags:
                 # some tags are not supported such as bfs/dfs
                 if tag_slug not in self.tags:
                     continue

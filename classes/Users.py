@@ -31,6 +31,8 @@ class User():
 
         self.build_ratings()
 
+        self.build_settings()
+
     def parse_txt(self):
         user_data = json.loads(self.data_txt)
 
@@ -74,7 +76,8 @@ class User():
         elif self.contest_rating >= self.questions_rating:
             self.projected_rating = 0.75 * self.contest_rating + 0.25 * self.questions_rating
 
-    def build_preferences(self):
+    def build_settings(self):
+        # TODO: more settings such as premium and show questions that you've done before
         settings = {
             "blacklisted_tags": []
         }
@@ -91,7 +94,7 @@ class User():
             "projected_rating": self.projected_rating,
             "completed_questions": self.completed_questions,
             "tags": self.user_tags_stats.output,
-            "preferences": self.settings
+            "settings": self.settings
         }
 
         return user_data_structure

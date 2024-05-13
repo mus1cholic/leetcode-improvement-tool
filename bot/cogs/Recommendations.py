@@ -38,13 +38,11 @@ class Recommendations(commands.Cog):
 
         discord_user_id = ctx.message.author.id
 
-        result = self.suggestion.suggest_problem(discord_user_id)
+        response = self.suggestion.suggest_problem(discord_user_id)
 
-        message_string = f"{ctx.message.author.mention}, here's " + \
-            "a problem for you: {result['link']}\n" + \
-            f"Rating: ||{int(result['rating'])}||"
+        response = f"{ctx.message.author.mention}, {response}"
 
-        await ctx.send(message_string)
+        await ctx.send(response)
 
     @commands.hybrid_command()
     async def advancedrecommend(self, ctx: commands.Context,

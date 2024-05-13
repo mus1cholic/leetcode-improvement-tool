@@ -45,15 +45,25 @@ class UserSetup(commands.Cog):
 
         await ctx.send(response_str)
 
+    # TODO: will make a generic settings page with a dropdown menu of all
+    # settings, then using that message, edit the message and show the
+    # view based on what the user selects
     @commands.hybrid_command()
-    async def removetag(self, ctx: commands.Context):
+    async def tagsettings(self, ctx: commands.Context):
         """
-        Removes a tag from your recommendations
+        Changes your blacklisted tag settings
         """
 
-        view = AddRemoveTagView("Option 1", "Option 2", "Option 3")
+        user_result = self.db.find_user(ctx.message.author.id)
 
-        message = await ctx.send(view=view)
+        if not user_result:
+            await ctx.send(f"{ctx.message.author.mention}, you have not created " +\
+                           "a profile yet. You can do so with /createprofile")    
+            return
+
+        view = AddRemoveTagView(user_result)
+
+        message = await ctx.send(view=view, ephemeral=True)
 
         view.message = message
 
