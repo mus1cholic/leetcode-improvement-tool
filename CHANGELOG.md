@@ -1,6 +1,22 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.4.4] - 2024-05-28
+
+### Added
+
+- Added server logo
+- Added various indexes to database to speed up query process
+- Added submission/accepted data in database
+- Added Gradient Boosting Model with RMSE of ~175 to predict rating
+of questions not in ratings.txt. The model and parameters are kept
+private and will only be used to obtain rating data for some of
+the earlier questions that ratings.txt doesn't cover
+ 
+### Changed
+ 
+### Fixed
+
 ## [0.4.3] - 2024-05-13
 
 ### Added

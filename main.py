@@ -3,15 +3,19 @@ from classes.Parsers import Parser
 from bot.bot import Bot
 from data import secret as secret
 
+from utils.extrapolate import build_regression_fit
+
 import discord
 
 def main():
     # TODO: eventually do npm run dev on another thread here
-    # builder = Builder()
-    # builder.build_question_rating_data()
-    # builder.build_user_data()
+    builder = Builder()
 
-    setup_bot()
+    #builder.build_question_rating_data()
+
+    build_regression_fit()
+
+    # setup_bot()
 
 def setup_bot():
     intents = discord.Intents.default()

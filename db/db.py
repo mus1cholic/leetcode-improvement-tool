@@ -72,6 +72,13 @@ class Database(object):
         return result
     
     @classmethod
+    def return_all_questions(cls):
+        # should only be using this once per session
+        result = cls.rating_question_tag_data_collection.find()
+
+        return result
+    
+    @classmethod
     def find_problems(cls, rating_min: float, rating_max: float, blacklisted_tags=[]):
         query = {
             "rating": {

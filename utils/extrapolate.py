@@ -4,10 +4,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from scipy.stats import linregress
+from db.db import Database
+from classes.Tags import TagsEnum
 
 def build_regression_fit():
-    with open("../data/questions_data.json", "r+") as f:
-        questions_data = json.load(f)
+    db = Database()
+
+    questions_data = list(db.return_all_questions())
 
     # x is acceptance rate, y is rating
     x_hard, y_hard = [], []
@@ -16,7 +19,8 @@ def build_regression_fit():
     x_total, y_total = [], []
 
     for question in questions_data:
-        if question["rating"] != 0:
+        if question["rating"] != 0 and question["total_acs"] >= 10000:
+        # if question["rating"] != 0:
             if question["difficulty"] == "Easy":
                 x_easy.append(100 * question["total_acs"] / question["total_submitted"])
                 y_easy.append(question["rating"])

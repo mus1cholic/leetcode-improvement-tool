@@ -69,7 +69,7 @@ class Builder:
             {
                 '$unset': ['questionId','question', 'exampleTestcases', 'hints',
                            'solution', 'companyTagStats', 'likes', 'dislikes',
-                           'similarQuestions', 'total_acs', 'total_submitted']
+                           'similarQuestions']
             },
             {
                 '$addFields': {
@@ -135,6 +135,8 @@ class Builder:
                     "link": "$link",
                     "rating": "$rating",
                     "difficulty": "$difficulty",
+                    "total_acs": "$total_acs",
+                    "total_submitted": "$total_submitted",
                     "premium": "$isPaidOnly",
                     "tags": "$tags"
                 }
