@@ -9,13 +9,13 @@ import discord
 
 def main():
     # TODO: eventually do npm run dev on another thread here
-    builder = Builder()
+    # builder = Builder()
 
     #builder.build_question_rating_data()
 
-    build_regression_fit()
+    # build_regression_fit()
 
-    # setup_bot()
+    setup_bot()
 
 def setup_bot():
     intents = discord.Intents.default()

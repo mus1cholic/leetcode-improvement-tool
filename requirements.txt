@@ -1,0 +1,7 @@
+discord.py
+numpy
+scikit-learn
+matplotlib
+pandas
+pymongo[srv]
+requests

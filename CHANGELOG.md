@@ -1,6 +1,17 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.4.5] - 2024-05-29
+
+### Added
+
+- Successfully set up environment on AWS E2 instance
+- Added requirements.txt
+ 
+### Changed
+ 
+### Fixed
+
 ## [0.4.4] - 2024-05-28
 
 ### Added
