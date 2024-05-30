@@ -77,9 +77,11 @@ class User():
             self.projected_rating = 0.75 * self.contest_rating + 0.25 * self.questions_rating
 
     def build_settings(self):
-        # TODO: more settings such as premium and show questions that you've done before
         settings = {
-            "blacklisted_tags": []
+            "blacklisted_tags": [],
+            "show_premium": True, # Not Yet Implemented
+            "show_questions_done_before": False, # Not Yet Implemented
+            # "full_ratings": True, # Not Yet Implemented
         }
 
         self.settings = settings

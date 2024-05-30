@@ -1,74 +1,53 @@
-import json
+import pickle
 
-import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
-from scipy.stats import linregress
-from db.db import Database
-from classes.Tags import TagsEnum
+from utils.utils import convert_topicTags_to_tags_array
 
-def build_regression_fit():
-    db = Database()
+def predict_question_rating(question: dict):
+    with open('data/gradient_boosting_model.pkl', 'rb') as file:
+        loaded_gb_model = pickle.load(file)
 
-    questions_data = list(db.return_all_questions())
+    with open('data/preprocessing_objects.pkl', 'rb') as file:
+        ordinal_encoder, scaler, feature_cols, tag_list, emphasized_tags = pickle.load(file)
 
-    # x is acceptance rate, y is rating
-    x_hard, y_hard = [], []
-    x_medium, y_medium = [], []
-    x_easy, y_easy = [], []
-    x_total, y_total = [], []
+    input_data = {
+        'total_acs': question["total_acs"],
+        'total_submitted': question["total_submitted"],
+        'tags': convert_topicTags_to_tags_array(question["topicTags"]),
+        'difficulty': question["difficulty"]
+    }
 
-    for question in questions_data:
-        if question["rating"] != 0 and question["total_acs"] >= 10000:
-        # if question["rating"] != 0:
-            if question["difficulty"] == "Easy":
-                x_easy.append(100 * question["total_acs"] / question["total_submitted"])
-                y_easy.append(question["rating"])
-            elif question["difficulty"] == "Medium":
-                x_medium.append(100 * question["total_acs"] / question["total_submitted"])
-                y_medium.append(question["rating"])
-            else:
-                x_hard.append(100 * question["total_acs"] / question["total_submitted"])
-                y_hard.append(question["rating"])
+    input_data['acceptance_rate'] = input_data['total_acs'] / input_data['total_submitted']
 
-            x_total.append(100 * question["total_acs"] / question["total_submitted"])
-            y_total.append(question["rating"])
+    # Log transform total_acs, total_submitted, and acceptance_rate
+    input_data['log_total_acs'] = np.log1p(input_data['total_acs'])
+    input_data['log_total_submitted'] = np.log1p(input_data['total_submitted'])
+    input_data['log_acceptance_rate'] = np.log1p(input_data['acceptance_rate'])
 
-    _, axes = plt.subplots(2, 2, figsize=(9, 9))
-    xseq = np.linspace(0, 100, num=100)
+    # Ordinal encoding for difficulty
+    input_df = pd.DataFrame([input_data])
+    input_df['difficulty_encoded'] = ordinal_encoder.transform(input_df[['difficulty']])
 
-    # Easy plot
-    axes[0][0].scatter(x_easy, y_easy, s=30, alpha=0.7, c="green", edgecolors="k")
+    # Add binary features for emphasized tags in the input data
+    for tag in tag_list:
+        input_df[f'tag_{tag}_freq'] = 0
+        if tag in input_data['tags']:
+            input_df[f'tag_{tag}_freq'] = 1
+        if tag in emphasized_tags:
+            input_df[f'emphasized_tag_{tag}'] = 10 if tag in input_data['tags'] else 0  # Boost binary feature
 
-    slope_easy, intercept_easy, r_value_easy, _, _ = linregress(x_easy, y_easy)
-    axes[0][0].plot(xseq, slope_easy * xseq + intercept_easy, color="k", lw=1.5)
-    axes[0][0].text(70, 1550, f"R^2: {round(r_value_easy ** 2, 3)}")
+    # Ensure input_df has the same feature columns
+    input_df = input_df[feature_cols]
 
-    # Medium plot
-    axes[0][1].scatter(x_medium, y_medium, s=30, alpha=0.7, c="yellow", edgecolors="k")
+    # Standardize input features
+    input_scaled = scaler.transform(input_df)
 
-    slope_medium, intercept_medium, r_value_medium, _, _ = linregress(x_medium, y_medium)
-    axes[0][1].plot(xseq, slope_medium * xseq + intercept_medium, color="k", lw=1.5)
-    axes[0][1].text(70, 2300, f"R^2: {round(r_value_medium ** 2, 3)}")
+    # Convert scaled input back to DataFrame with feature names
+    input_scaled_df = pd.DataFrame(input_scaled, columns=feature_cols)
 
-    # Hard plot
-    axes[1][0].scatter(x_hard, y_hard, s=30, alpha=0.7, c="red", edgecolors="k")
+    # Predict using the loaded Gradient Boosting model
+    gb_pred = loaded_gb_model.predict(input_scaled_df)
 
-    slope_hard, intercept_hard, r_value_hard, _, _ = linregress(x_hard, y_hard)
-    axes[1][0].plot(xseq, slope_hard * xseq + intercept_hard, color="k", lw=1.5)
-    axes[1][0].text(70, 3000, f"R^2: {round(r_value_hard ** 2, 3)}")
-
-    # Total plot
-    axes[1][1].scatter(x_easy, y_easy, s=30, alpha=0.7, c="green", edgecolors="k")
-    axes[1][1].scatter(x_medium, y_medium, s=30, alpha=0.7, c="yellow", edgecolors="k")
-    axes[1][1].scatter(x_hard, y_hard, s=30, alpha=0.7, c="red", edgecolors="k")
-
-    slope_total, intercept_total, r_value_total, _, _ = linregress(x_total, y_total)
-    axes[1][1].plot(xseq, slope_total * xseq + intercept_total, color="k", lw=1.5)
-    axes[1][1].text(70, 3000, f"R^2: {round(r_value_total ** 2, 3)}")
-    # R^2 was 0.502
-
-    # axes.set_xlabel("Acceptance Rate (%)")
-    # axes.set_ylabel("Rating")
-
-    plt.show()
+    return gb_pred[0]

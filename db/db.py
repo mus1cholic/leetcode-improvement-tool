@@ -79,6 +79,23 @@ class Database(object):
         return result
     
     @classmethod
+    def return_all_raw_questions(cls):
+        # should only be using this once per session
+        result = cls.questions_data_collection.find()
+
+        return result
+    
+    @classmethod
+    def insert_ratings_db(cls, data):
+        # insert the entire ratings db
+        cls.ratings_data_collection.insert_many(data)
+    
+    @classmethod
+    def delete_ratings_db(cls):
+        # deletes the entire ratings db, beware when using this
+        cls.ratings_data_collection.delete_many({})
+    
+    @classmethod
     def find_problems(cls, rating_min: float, rating_max: float, blacklisted_tags=[]):
         query = {
             "rating": {

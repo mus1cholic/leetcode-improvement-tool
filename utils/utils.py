@@ -14,3 +14,6 @@ def discord_get_attachment_content(url: str):
     file_request = requests.get(url)
 
     return file_request.content
+
+def convert_topicTags_to_tags_array(topicTags: list):
+    return [topic_tag_object["slug"] for topic_tag_object in topicTags]

@@ -1,4 +1,3 @@
-import json
 import time
 
 from .Users import User
@@ -13,25 +12,8 @@ class Builder:
     def __init__(self):
         self.db: Database = Database()
 
-    @staticmethod
-    def build_question_ratings():
-        # input: ratings.txt
-        # output: ratings.json
-
-        """
-        {
-            "question_id": {
-                "question_id": int,
-                "title": str,
-                "title_slug": str,
-                "rating": float
-            }
-        }
-        """
-
-        start_time = time.perf_counter()
-
-        ratings_data = {}
+    def build_ratings(self):
+        ratings_data = []
 
         with open("data/ratings.txt", encoding="utf8") as f:
             next(f) # skip header line
@@ -46,16 +28,12 @@ class Builder:
                     "rating": float(rating)
                 }
 
-                ratings_data[question_id] = ratings_structure
+                ratings_data.append(ratings_structure)
 
-        ratings_data = dict(sorted(ratings_data.items()))
+        self.db.delete_ratings_db()
+        self.db.insert_ratings_db(ratings_data)
 
-        with open("data/ratings.json", "w+") as f:
-            json.dump(ratings_data, f, indent=4, separators=(',', ': '))
-
-        end_time = time.perf_counter()
-
-        print(f"Successfully parsed questions ratings from ratings.txt, took {end_time - start_time}s")
+        print(f"Successfully pushed questions ratings from ratings.txt to database")
 
     def build_question_rating_data(self):
         # now that we have question bank, we can simplify all of the questions
@@ -88,13 +66,8 @@ class Builder:
                 '$addFields': {
                     'joined_docs': {
                         '$cond': {
-                            # TODO: There are questions in questions_data.json that aren't
-                            # in ratings.txt. For now, we skip those because we haven't
-                            # developed a way to accurately calculate rating for those.
-                            # Eventually we will do this through best-fit line of accepted
-                            # submission percentage
                             'if': {'$eq': ['$joined_docs', []]},  # Check if joined_docs is empty
-                            'then': [{'rating': 0}],  # If empty, set rating to 0 in a new object in the array
+                            'then': [{'rating': '$predicted_rating'}],  # If empty, set rating to predicted_rating from model
                             'else': '$joined_docs'  # Otherwise, keep it as is
                         }
                     }

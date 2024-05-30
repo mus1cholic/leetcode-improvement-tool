@@ -1,6 +1,21 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2024-05-30
+
+### Added
+
+- Added a few utility functions
+- Added virtual environment for easier management of packages
+
+### Changed
+
+- Changed database to use ML model's rating if rating not in ratings.txt
+
+### Fixed
+
+- Fixed logic of parsing ratings from ratings.txt
+
 ## [0.4.5] - 2024-05-29
 
 ### Added
