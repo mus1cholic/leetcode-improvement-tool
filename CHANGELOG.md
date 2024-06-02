@@ -1,6 +1,16 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.5.1] - 2024-06-01
+
+### Added
+
+- Added profile embed through /profile command
+
+### Changed
+
+### Fixed
+
 ## [0.5.0] - 2024-05-30
 
 ### Added
