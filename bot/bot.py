@@ -4,6 +4,7 @@ import time
 from .cogs.Recommendations import Recommendations
 from .cogs.UserSetup import UserSetup
 from .cogs.Profile import Profile
+from .cogs.General import General
 
 class Bot(commands.Bot):
     async def on_ready(self):
@@ -20,3 +21,4 @@ class Bot(commands.Bot):
         await self.add_cog(UserSetup(self))
         await self.add_cog(Recommendations(self))
         await self.add_cog(Profile(self))
+        await self.add_cog(General(self))

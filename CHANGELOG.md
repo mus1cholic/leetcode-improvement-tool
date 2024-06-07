@@ -1,6 +1,18 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.5.2] - 2024-06-07
+
+### Added
+
+- Added a separate cog for general/utility commands
+
+### Changed
+
+- Changed /advancerecommend command to use a custom View to select options
+
+### Fixed
+
 ## [0.5.1] - 2024-06-01
 
 ### Added

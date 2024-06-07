@@ -1,9 +1,10 @@
 from discord.ext import commands
-
 from typing import Optional
 
 from classes.Suggestions import Suggestion, RecommendationEnum
 from classes.Tags import TagsEnum
+
+from bot.cogs.Views.TagMultiChoiceView import AdvancedRecommendView
 
 from db.db import Database
 
@@ -18,22 +19,16 @@ class Recommendations(commands.Cog):
         
         self.suggestion: Suggestion = Suggestion()
 
-    @commands.command()
-    async def sync(self, ctx: commands.Context):
-        # if ctx.author.id == OWNER_USERID:
-        #     await bot.tree.sync()
-        #     await ctx.send('Command tree synced.')
-        # else:
-        #     await ctx.send('You must be the owner to use this command!')
-
-        self.bot.tree.copy_global_to(guild=ctx.guild)
-        await self.bot.tree.sync(guild=ctx.guild)
-        await ctx.send('Command tree synced.')
-
     @commands.hybrid_command()
-    async def recommend(self, ctx: commands.Context):
+    async def recommend(self, ctx: commands.Context,
+                        difficulty: Optional[RecommendationEnum]):
         """
         Recommends a random leetcode question based on your profile
+
+        Parameters
+        -----------
+        difficulty: RecommendationEnum, default: 2
+            the difficulty of the problem
         """
 
         discord_user_id = ctx.message.author.id
@@ -45,21 +40,14 @@ class Recommendations(commands.Cog):
         await ctx.send(response)
 
     @commands.hybrid_command()
-    async def advancedrecommend(self, ctx: commands.Context,
-                                difficulty: Optional[RecommendationEnum],
-                                tags: Optional[TagsEnum]):
+    async def advancedrecommend(self, ctx: commands.Context):
         """
         Recommends a random leetcode question based on your profile with advanced configurations
-
-        Parameters
-        -----------
-        difficulty: RecommendationEnum, default: 2
-            the difficulty of the problem to recommend
-
-        tags: TagsEnum, default: Overall
-            a multiple-choice for all the tags to include
         """
 
-        print(tags)
+        discord_user_id = ctx.message.author.id
 
-        await ctx.send("hi!")
+        view = AdvancedRecommendView(discord_user_id)
+
+        message = await ctx.send(view=view, ephemeral=True)
+        view.message = message

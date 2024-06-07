@@ -56,7 +56,7 @@ class Suggestion:
 
         question = self.db.find_question(random_question_id)
 
-        response = f"here's a problem for you: {question['link']}\n" + \
+        response = f"Here's a problem for you: {question['link']}\n" + \
                    f"Rating: ||{int(question['rating'])}||"
 
         return response
