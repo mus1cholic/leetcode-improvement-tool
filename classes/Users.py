@@ -14,6 +14,7 @@ class User():
         self.discord_id: int = user_discord_id
         self.discord_username: str = user_discord_username
         self.lc_username: str
+        self.lc_avatar: str
         self.contest_rating: float
         self.questions_rating: float
         self.projected_rating: float
@@ -26,7 +27,7 @@ class User():
     def build_user(self):
         self.parse_txt()
 
-        self.get_contest_rating()
+        self.get_leetcode_data()
         self.build_tags()
 
         self.build_ratings()
@@ -48,7 +49,14 @@ class User():
                                            for question in user_questions_stats
                                            if question['status'] == 'ac'])
         
-    def get_contest_rating(self):
+    def get_leetcode_data(self):
+        # get profile avatar
+        user_data_request = utils.api_get_user_info(self.lc_username)
+        user_data = user_data_request.json()
+
+        self.avatar = user_data["avatar"]
+
+        # get rating
         user_contest_data_request = utils.api_get_user_contest_info(self.lc_username)
         user_contest_data = user_contest_data_request.json()
 
@@ -91,6 +99,7 @@ class User():
             "discord_id": self.discord_id,
             "discord_username": self.discord_username,
             "lc_user_name": self.lc_username,
+            "avatar": self.avatar,
             "contest_rating": self.contest_rating,
             "questions_rating": self.questions_rating,
             "projected_rating": self.projected_rating,
