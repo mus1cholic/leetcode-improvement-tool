@@ -1,6 +1,18 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.5.2] - 2024-06-08
+
+### Added
+
+- Added leetcode profile icon when doing /profile
+
+### Changed
+
+### Fixed
+
+- Fixed search term modal causing an error
+
 ## [0.5.2] - 2024-06-07
 
 ### Added
