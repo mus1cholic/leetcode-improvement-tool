@@ -30,8 +30,7 @@ class Profile(commands.Cog):
         embed = discord.Embed()
 
         embed.set_author(name=user["discord_username"], icon_url=ctx.message.author.display_avatar)
-        embed.set_thumbnail(url=user["avatar"])
-        embed.color = discord.Color.blurple()
+        embed.set_thumbnail(url=ctx.message.author.display_avatar)
 
         embed.title = f"{user['lc_user_name']}'s Leetcode Profile"
         embed.url = f"https://leetcode.com/u/{user['lc_user_name']}/"

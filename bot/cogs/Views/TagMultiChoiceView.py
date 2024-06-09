@@ -85,7 +85,7 @@ class AdvancedRecommendView(View):
 
     @discord.ui.button(label="Set Search Term", style=discord.ButtonStyle.primary, row=0)
     async def set_search_term(self, interaction: discord.Interaction, button: discord.ui.Button):
-        modal = SearchTermModal(self)
+        modal = SearchTermModal()
         await interaction.response.send_modal(modal)
 
     @discord.ui.select(
