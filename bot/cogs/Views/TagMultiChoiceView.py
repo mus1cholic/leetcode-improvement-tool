@@ -117,7 +117,12 @@ class AdvancedRecommendView(View):
         self.stop()
         await self.on_timeout()
 
-        response = self.suggestion.suggest_problem(self.discord_user_id)
+        response = self.suggestion.suggest_problem(self.discord_user_id,
+                                                   min_rating=self.min_rating,
+                                                   max_rating=self.max_rating,
+                                                   search_term=self.search_term,
+                                                   tags_must_include=self.must_include_selected_options,
+                                                   tags_ignore=self.ignore_selected_options)
 
         await interaction.response.send_message(response)
 

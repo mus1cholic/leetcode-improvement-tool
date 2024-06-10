@@ -1,6 +1,18 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.5.4] - 2024-06-10
+
+### Added
+
+- Added some functionality for advanced recommendation options, the filtering
+out of user completed questions as well as the random choice will come in
+the next update
+
+### Changed
+
+### Fixed
+
 ## [0.5.3] - 2024-06-08
 
 ### Added
