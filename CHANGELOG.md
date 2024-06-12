@@ -1,6 +1,19 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.5.5] - 2024-06-11
+
+### Added
+
+- Added full functionality for advanced recommendation options
+
+### Changed
+
+### Fixed
+
+- Fixed bug with rating filter that caused the search to default to a moderate
+problem when the ratings weren't specified
+
 ## [0.5.4] - 2024-06-10
 
 ### Added

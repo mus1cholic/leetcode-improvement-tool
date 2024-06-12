@@ -1,10 +1,10 @@
 from discord.ext import commands
 from typing import Optional
 
-from classes.Suggestions import Suggestion, RecommendationEnum
+from classes.Suggestions import SimpleSuggestion, RecommendationEnum
 from classes.Tags import TagsEnum
 
-from bot.cogs.Views.TagMultiChoiceView import AdvancedRecommendView
+from bot.cogs.Views.AdvancedRecommendView import AdvancedRecommendView
 
 from db.db import Database
 
@@ -17,7 +17,7 @@ class Recommendations(commands.Cog):
         self.bot: commands.Bot = bot
         self.db: Database = Database()
         
-        self.suggestion: Suggestion = Suggestion()
+        self.simple_suggestion: SimpleSuggestion = SimpleSuggestion()
 
     @commands.hybrid_command()
     async def recommend(self, ctx: commands.Context,
@@ -33,7 +33,7 @@ class Recommendations(commands.Cog):
 
         discord_user_id = ctx.message.author.id
 
-        response = self.suggestion.suggest_problem(discord_user_id)
+        response = self.simple_suggestion.suggest_problem(discord_user_id, difficulty=difficulty)
 
         response = f"{ctx.message.author.mention}, {response}"
 
@@ -47,7 +47,7 @@ class Recommendations(commands.Cog):
 
         discord_user_id = ctx.message.author.id
 
-        view = AdvancedRecommendView(discord_user_id)
+        view = AdvancedRecommendView(discord_user_id, self.db)
 
         message = await ctx.send(view=view, ephemeral=True)
         view.message = message
