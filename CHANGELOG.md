@@ -1,7 +1,19 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [0.5.5] - 2024-06-11
+## [0.5.6] - 2024-06-14
+
+### Added
+
+### Changed
+
+### Fixed
+
+- Fixed some question ratings defaulting to values of 1737 by using
+new model with regularization terms to prevent overfitting on a few
+features. The database has not been updated to reflect this as 
+
+## [0.5.5] - 2024-06-12
 
 ### Added
 

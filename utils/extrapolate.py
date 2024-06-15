@@ -2,13 +2,17 @@ import pickle
 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from utils.utils import convert_topicTags_to_tags_array
 
-def predict_question_rating(question: dict):
-    with open('data/gradient_boosting_model.pkl', 'rb') as file:
-        loaded_gb_model = pickle.load(file)
+def predict_question_rating(question: dict, model_type='lasso'):
+    # Load the appropriate model
+    model_filename = 'data/ridge_model.pkl' if model_type == 'ridge' else 'data/lasso_model.pkl'
+    with open(model_filename, 'rb') as file:
+        loaded_model = pickle.load(file)
 
+    # Load preprocessing objects
     with open('data/preprocessing_objects.pkl', 'rb') as file:
         ordinal_encoder, scaler, feature_cols, tag_list, emphasized_tags = pickle.load(file)
 
@@ -36,9 +40,13 @@ def predict_question_rating(question: dict):
         if tag in input_data['tags']:
             input_df[f'tag_{tag}_freq'] = 1
         if tag in emphasized_tags:
-            input_df[f'emphasized_tag_{tag}'] = 10 if tag in input_data['tags'] else 0  # Boost binary feature
+            input_df[f'emphasized_tag_{tag}'] = 10 if tag in input_data['tags'] else 0
 
     # Ensure input_df has the same feature columns
+    missing_cols = set(feature_cols) - set(input_df.columns)
+    for col in missing_cols:
+        input_df[col] = 0
+
     input_df = input_df[feature_cols]
 
     # Standardize input features
@@ -47,7 +55,7 @@ def predict_question_rating(question: dict):
     # Convert scaled input back to DataFrame with feature names
     input_scaled_df = pd.DataFrame(input_scaled, columns=feature_cols)
 
-    # Predict using the loaded Gradient Boosting model
-    gb_pred = loaded_gb_model.predict(input_scaled_df)
+    # Predict using the loaded model
+    prediction = loaded_model.predict(input_scaled_df)
 
-    return gb_pred[0]
+    return prediction[0]
