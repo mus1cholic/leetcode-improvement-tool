@@ -4,7 +4,7 @@ from typing import Optional
 from classes.Suggestions import SimpleSuggestion, RecommendationEnum
 from classes.Tags import TagsEnum
 
-from bot.cogs.Views.AdvancedRecommendView import AdvancedRecommendView
+from bot.Views.AdvancedRecommendView import AdvancedRecommendView
 
 from db.db import Database
 

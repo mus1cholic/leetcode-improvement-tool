@@ -103,7 +103,7 @@ class Suggestion:
         pipeline.append(random_question_pipeline)
 
     def set_user(self, discord_user_id: int):
-        self.user_result = self.db.find_user(discord_user_id)
+        self.user_result = self.db.find_user_by_discord_id(discord_user_id)
         
         return self.user_result
 

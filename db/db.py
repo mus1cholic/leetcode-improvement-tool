@@ -37,9 +37,19 @@ class Database(object):
         Database.rating_question_tag_data_collection = Database.db["rating_question_tag_data"]
 
     @classmethod
-    def find_user(cls, discord_user_id: int):
+    def find_user_by_discord_id(cls, discord_user_id: int):
         query = {
             "discord_id": discord_user_id
+        }
+
+        result = cls.user_data_collection.find_one(query)
+
+        return result
+    
+    @classmethod
+    def find_user_by_leetcode_username(cls, lc_username: str):
+        query = {# TODO: change this to username
+            "lc_user_name": lc_username
         }
 
         result = cls.user_data_collection.find_one(query)

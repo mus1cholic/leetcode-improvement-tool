@@ -7,7 +7,7 @@ from discord.ext import commands
 from classes.Builders import Builder
 from classes.Tags import TagsEnum
 
-from bot.cogs.Views.AddRemoveTagView import AddRemoveTagView
+from bot.Views.AddRemoveTagView import AddRemoveTagView
 
 from db.db import Database
 
@@ -54,7 +54,7 @@ class UserSetup(commands.Cog):
         Changes your blacklisted tag settings
         """
 
-        user_result = self.db.find_user(ctx.message.author.id)
+        user_result = self.db.find_user_by_discord_id(ctx.message.author.id)
 
         if not user_result:
             await ctx.send(f"{ctx.message.author.mention}, you have not created " +\

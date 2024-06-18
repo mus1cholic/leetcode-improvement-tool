@@ -76,7 +76,7 @@ class AdvancedRecommendView(View):
 
         self.advanced_suggestion: AdvancedSuggestion = AdvancedSuggestion()
         self.discord_user_id = discord_user_id
-        user_result = db.find_user(discord_user_id)
+        user_result = db.find_user_by_discord_id(discord_user_id)
         self.user_blacklisted_tags = user_result["settings"]["blacklisted_tags"]
         self.ignore_selected_options = self.user_blacklisted_tags
 

@@ -1,6 +1,18 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.5.7] - 2024-06-17
+
+### Added
+
+### Changed
+
+- Changed profile to command the add optional parameter to check
+other people's profiles
+- Changed file structure of Embeds and Views
+
+### Fixed
+
 ## [0.5.6] - 2024-06-14
 
 ### Added
@@ -11,7 +23,7 @@ All notable changes to this project will be documented in this file.
 
 - Fixed some question ratings defaulting to values of 1737 by using
 new model with regularization terms to prevent overfitting on a few
-features. The database has not been updated to reflect this as 
+features. The database has not been updated to reflect this
 
 ## [0.5.5] - 2024-06-12
 
