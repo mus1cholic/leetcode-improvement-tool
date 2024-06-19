@@ -23,7 +23,7 @@ class Suggestion:
 
         rating_filter_pipeline = {
             "$match": {
-                "rating": {
+                "zerotrac_rating": {
                     "$gte": min_rating,
                     "$lte": max_rating
                 }
@@ -139,7 +139,7 @@ class Suggestion:
                    "more tags or expanding your search range..."
     
         response = f"Here's a problem for you: {question['link']}\n" + \
-                   f"Rating: ||{int(question['rating'])}||. Tags: ||{', '.join(question["tags"])}||"
+                   f"Rating: ||{int(question['zerotrac_rating'])}||. Tags: ||{', '.join(question["tags"])}||"
 
         return response
     
@@ -155,7 +155,7 @@ class SimpleSuggestion(Suggestion):
 
         if user_result == None:
             return "You must set up your profile first before using /recommend! See the " + \
-                    "instructions in /setupprofile."
+                    "instructions in /setup"
         
         user_rating = user_result["projected_rating"]
         
@@ -191,7 +191,7 @@ class AdvancedSuggestion(Suggestion):
 
         if user_result == None:
             return "You must set up your profile first before using /recommend! See the " + \
-                    "instructions in /setupprofile."
+                    "instructions in /setup"
         
         return super().suggest_problem(min_rating=min_rating,
                                        max_rating=max_rating,

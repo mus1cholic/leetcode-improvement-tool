@@ -25,23 +25,18 @@ class UserSetup(commands.Cog):
         self.builder: Builder = Builder()
 
     @commands.hybrid_command()
-    async def setupprofile(self, ctx: commands.Context):
+    async def setup(self, ctx: commands.Context):
         """
         Instructions on how to set up your profile
         """
 
-        response_str = "To set up your profile, you first need to go to " + \
+        response_str = "To set up or update your profile, head to " + \
                         "https://leetcode.com/api/problems/algorithms/. Ensured " + \
-                        "that you are logged in and that the \"user_name\" field " + \
-                        "at the very start is not empty. Then, save the entire " + \
-                        "content as an **.txt** file.\n\nAfterwards, while typing " + \
-                        "the /createprofile command, attach that txt file to the " + \
-                        "command, and send the message. The server will then save " + \
-                        "your information in the database.\n\nIf you would like to " + \
-                        "update your information instead, do the same thing, but " + \
-                        "with the command /updateprofile.\n\n" + \
-                        "By uploading this .txt file, you are agreeing to let LIT " + \
-                        "use your personal leetcode statistical data."
+                        "that you are **logged in**. Then, copy the entire content of " + \
+                        "the webpage by doing **Ctrl-A** and **Ctrl-C**.\n\nAfterwards, " + \
+                        "while typing the **/updateprofile** command, paste the output by " + \
+                        "doing **Ctrl-V**, and send the message. The server will then save " + \
+                        "your leetcode profile information in the database."
 
         await ctx.send(response_str)
 
@@ -68,21 +63,9 @@ class UserSetup(commands.Cog):
         view.message = message
 
     @commands.hybrid_command()
-    async def updateprofile(self, ctx: commands.Context, attachment: Optional[discord.Attachment]):
+    async def updateprofile(self, ctx: commands.Context, attachment: discord.Attachment):
         """
-        Updates your profile, TODO
-
-        Parameters
-        -----------
-        attachment: discord.Attachment, optional
-            Your algorithms txt file
-        """
-        await ctx.send("TODO")
-
-    @commands.hybrid_command()
-    async def createprofile(self, ctx: commands.Context, attachment: discord.Attachment):
-        """
-        Creates your profile
+        Creates/updates your profile
 
         Parameters
         -----------
@@ -94,17 +77,13 @@ class UserSetup(commands.Cog):
         discord_username = ctx.message.author.name
 
         attachments = ctx.message.attachments
-
-        # TODO: put all this sanity check in another place
-        if self.builder.check_user_exist(discord_user_id):
-            await ctx.send(f"{ctx.message.author.mention}, your profile already exists. " + 
-                           "If you would like to update your profile instead, use the " +
-                           "/updateprofile command.")
-            return
         
         file_url = attachments[0]
         file_content = discord_get_attachment_content(file_url)
 
+        if self.db.find_user_by_discord_id(discord_user_id):
+            self.db.delete_user_by_discord_id(discord_user_id)
+        
         self.builder.build_user_data(discord_user_id, discord_username, file_content)
 
         await ctx.send(f"{ctx.message.author.mention}, your data has been saved to the database.")

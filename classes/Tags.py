@@ -66,7 +66,7 @@ class TagsStatistics:
 
         for result in results:
             question_id = result["question_id"]
-            question_rating = result["rating"]
+            question_rating = result["zerotrac_rating"]
             question_tags = result["tags"]
 
             for tag_slug in question_tags:

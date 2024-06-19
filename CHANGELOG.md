@@ -1,6 +1,21 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.5.9] - 2024-06-19
+
+### Added
+
+### Changed
+
+- Changed both zerotrac and predicted ratings to be in ratings collection
+- Changed question rating collection aggregate to be more simple
+- Changed setup command text to highlight key words
+- Changed and refactored some command names
+
+### Fixed
+
+- Fixed parsing logic again
+
 ## [0.5.8] - 2024-06-18
 
 ### Added

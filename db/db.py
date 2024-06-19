@@ -11,7 +11,6 @@ class DatabaseEnum(enum.StrEnum):
 
 class Database(object):
     client = None
-
     db = None
 
     user_data_collection = None
@@ -72,25 +71,27 @@ class Database(object):
         return result
     
     @classmethod
-    def find_question(cls, question_id: int):
-        # TODO: change this to find_question_by_question_id eventually
+    def find_question_by_question_id(cls, question_id: int):
         query = {
-            "question_id": question_id
+            "questionFrontendId": question_id
         }
 
-        result = cls.rating_question_tag_data_collection.find_one(query)
+        result = cls.questions_data_collection.find_one(query)
 
         return result
-    
+
     @classmethod
-    def find_rating_by_question_id(cls, question_id: int):
+    def insert_user(cls, user_data_structure: dict):
+        cls.user_data_collection.insert_one(user_data_structure)
+
+    @classmethod
+    def delete_user_by_discord_id(cls, discord_id: int):
+        # must guarantee that the document exists first
         query = {
-            "question_id": question_id
+            "discord_id": discord_id
         }
 
-        result = cls.ratings_data_collection.find_one(query)
-
-        return result
+        cls.user_data_collection.delete_one(query)
     
     @classmethod
     def return_all_questions(cls):

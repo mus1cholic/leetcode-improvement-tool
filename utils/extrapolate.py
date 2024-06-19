@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 from utils.utils import convert_topicTags_to_tags_array
 
-def predict_question_rating(question: dict, model_type='lasso'):
+def predict_question_rating(question: dict, model_type='ridge'):
     # Load the appropriate model
     model_filename = 'data/ridge_model.pkl' if model_type == 'ridge' else 'data/lasso_model.pkl'
     with open(model_filename, 'rb') as file:
