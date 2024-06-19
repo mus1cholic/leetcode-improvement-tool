@@ -9,7 +9,10 @@ def main():
     # builder = Builder()
     # builder.build_question_rating_data()
 
-    setup_bot()
+    parser = Parser()
+    parser.parse_question_bank()
+
+    # setup_bot()
 
 def setup_bot():
     intents = discord.Intents.default()

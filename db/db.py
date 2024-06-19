@@ -73,11 +73,22 @@ class Database(object):
     
     @classmethod
     def find_question(cls, question_id: int):
+        # TODO: change this to find_question_by_question_id eventually
         query = {
             "question_id": question_id
         }
 
         result = cls.rating_question_tag_data_collection.find_one(query)
+
+        return result
+    
+    @classmethod
+    def find_rating_by_question_id(cls, question_id: int):
+        query = {
+            "question_id": question_id
+        }
+
+        result = cls.ratings_data_collection.find_one(query)
 
         return result
     
@@ -96,6 +107,10 @@ class Database(object):
         return result
     
     @classmethod
+    def insert_question(cls, data):
+        cls.questions_data_collection.insert_one(data)
+    
+    @classmethod
     def insert_ratings_db(cls, data):
         # insert the entire ratings db
         cls.ratings_data_collection.insert_many(data)
@@ -104,19 +119,8 @@ class Database(object):
     def delete_ratings_db(cls):
         # deletes the entire ratings db, beware when using this
         cls.ratings_data_collection.delete_many({})
-    
+
     @classmethod
-    def find_problems(cls, rating_min: float, rating_max: float, blacklisted_tags=[]):
-        query = {
-            "rating": {
-                "$gte": rating_min,
-                "$lte": rating_max
-            },
-            "tags": {
-                "$nin": blacklisted_tags
-            }
-        }
-
-        result = cls.rating_question_tag_data_collection.distinct("question_id", query)
-
-        return result
+    def delete_questions_db(cls):
+        # deletes the entire questions db, beware when using this
+        cls.questions_data_collection.delete_many({})

@@ -1,6 +1,19 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.5.8] - 2024-06-18
+
+### Added
+
+### Changed
+
+- Changed the question collection to not have any rating data. This will
+be migrated into the ratings collection in a future update
+
+### Fixed
+
+- Fixed parser logic
+
 ## [0.5.7] - 2024-06-17
 
 ### Added
