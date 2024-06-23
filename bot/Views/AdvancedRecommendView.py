@@ -77,8 +77,9 @@ class AdvancedRecommendView(View):
         self.advanced_suggestion: AdvancedSuggestion = AdvancedSuggestion()
         self.discord_user_id = discord_user_id
         user_result = db.find_user_by_discord_id(discord_user_id)
-        self.user_blacklisted_tags = user_result["settings"]["blacklisted_tags"]
-        self.ignore_selected_options = self.user_blacklisted_tags
+        self.user_blacklisted_tags = [TagsEnum.from_slug(slug) for slug in user_result["settings"]["blacklisted_tags"]]
+        # self.ignore_selected_options = self.user_blacklisted_tags
+        self.ignore_selected_options = [tag.value for tag in self.user_blacklisted_tags]
 
         self.add_components()
 
@@ -88,7 +89,7 @@ class AdvancedRecommendView(View):
         # must include tag component
         options = [
             discord.SelectOption(
-                label=choice.name,
+                label=choice.full_name,
                 value=choice.value
             ) for choice in TagsEnum
         ]
@@ -107,9 +108,9 @@ class AdvancedRecommendView(View):
         # ignore tag component
         options = [
             discord.SelectOption(
-                label=choice.name,
+                label=choice.full_name,
                 value=choice.value,
-                default=(choice.value in self.user_blacklisted_tags)
+                default=choice in self.user_blacklisted_tags
             ) for choice in TagsEnum
         ]
 

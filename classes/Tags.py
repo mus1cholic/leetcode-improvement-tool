@@ -1,32 +1,53 @@
-import enum
-
+from enum import Enum
 import numpy as np
 
 from pymongo.collection import Collection
 
-class TagsEnum(enum.StrEnum):
-    Array = "array"
-    String = "string"
-    HashTable = "hash-table"
-    Matrix = "matrix"
-    Stack = "stack"
-    Queue = "queue"
-    LinkedList = "linked-list"
+class TagsEnum(Enum):
+    Array = ("array", "Array")
+    String = ("string", "String")
+    HashTable = ("hash-table", "Hash Table")
+    Matrix = ("matrix", "Matrix")
+    Stack = ("stack", "Stack")
+    LinkedList = ("linked-list", "Linked List")
 
-    TwoPointers = "two-pointers"
-    BinarySearch = "binary-search"
-    SlidingWindow = "sliding-window"
-    Tree = "tree"
-    HeapPriorityQueue = "heap-priority-queue"
-    Graph = "graph"
-    Math = "math"
+    TwoPointers = ("two-pointers", "Two Pointers")
+    BinarySearch = ("binary-search", "Binary Search")
+    SlidingWindow = ("sliding-window", "Sliding Window")
+    Tree = ("tree", "Tree")
+    HeapPriorityQueue = ("heap-priority-queue", "Heap (Priority Queue)")
+    Graph = ("graph", "Graph")
+    Math = ("math", "Math")
 
-    Backtracking = "backtracking"
-    DynamicProgramming = "dynamic-programming"
-    BitManipulation = "bit-manipulation"
-    TopologicalSort = "topological-sort"
+    Greedy = ("greedy", "Greedy")
+    Backtracking = ("backtracking", "Backtracking")
+    DynamicProgramming = ("dynamic-programming", "Dynamic Programming")
+    BitManipulation = ("bit-manipulation", "Bit Manipulation")
+    TopologicalSort = ("topological-sort", "Topological Sort")
 
-    Overall = "overall"
+    slug: str
+    full_name: str
+
+    def __new__(cls, slug, full_name):
+        obj = object.__new__(cls)
+        obj._value_ = slug
+        obj.slug = slug
+        obj.full_name = full_name
+
+        return obj
+    
+    @classmethod
+    def _initialize_slug_map(cls):
+        cls._slug_map = {member.slug: member for member in cls}
+
+    @classmethod
+    def from_slug(cls, slug):
+        if not hasattr(cls, '_slug_map'):
+            cls._initialize_slug_map()
+        try:
+            return cls._slug_map[slug]
+        except KeyError:
+            raise ValueError(f"No matching TagsEnum member for slug: {slug}")
 
 class TagsStatistics:
     def __init__(self, user_completed_questions: list,
@@ -42,7 +63,6 @@ class TagsStatistics:
         self.tags[TagsEnum.HashTable] = HashTableTag()
         self.tags[TagsEnum.Matrix] = MatrixTag()
         self.tags[TagsEnum.Stack] = StackTag()
-        self.tags[TagsEnum.Queue] = QueueTag()
         self.tags[TagsEnum.LinkedList] = LinkedListTag()
 
         self.tags[TagsEnum.TwoPointers] = TwoPointersTag()
@@ -53,12 +73,13 @@ class TagsStatistics:
         self.tags[TagsEnum.Graph] = GraphTag()
         self.tags[TagsEnum.Math] = MathTag()
 
+        self.tags[TagsEnum.Greedy] = GreedyTag()
         self.tags[TagsEnum.Backtracking] = BacktrackingTag()
         self.tags[TagsEnum.DynamicProgramming] = DynamicProgrammingTag()
         self.tags[TagsEnum.BitManipulation] = BitManipulationTag()
         self.tags[TagsEnum.TopologicalSort] = TopologicalSortTag()
 
-        self.tags[TagsEnum.Overall] = OverallTag()
+        self.overall = Overall()
 
     def build_tag_data(self):
         results = list(self.rating_question_tag_data_collection.find(
@@ -75,7 +96,8 @@ class TagsStatistics:
                     continue
 
                 self.tags[tag_slug].add_rating(question_rating, question_id)
-                self.tags[TagsEnum.Overall].add_rating(question_rating, question_id)
+
+            self.overall.add_rating(question_rating, question_id)
 
         for tag in self.tags:
             tag_class = self.tags[tag]
@@ -89,7 +111,7 @@ class TagsStatistics:
                 "questions": tag_class.questions
             })
 
-        # print(self.output)
+        self.overall.calculate_rating()
 
 class Tag:
     def __init__(self):
@@ -152,13 +174,6 @@ class StackTag(Tag):
         self.slug = "stack"
         self.tag_difficulty = "Easy"
 
-class QueueTag(Tag):
-    def __init__(self):
-        super().__init__()
-
-        self.slug = "queue"
-        self.tag_difficulty = "Easy"
-
 class LinkedListTag(Tag):
     def __init__(self):
         super().__init__()
@@ -215,6 +230,13 @@ class MathTag(Tag):
         self.slug = "math"
         self.tag_difficulty = "Medium"
 
+class GreedyTag(Tag):
+    def __init__(self):
+        super().__init__()
+
+        self.slug = "greedy"
+        self.tag_difficulty = "Hard"
+
 class BacktrackingTag(Tag):
     def __init__(self):
         super().__init__()
@@ -243,8 +265,6 @@ class TopologicalSortTag(Tag):
         self.slug = "topological-sort"
         self.tag_difficulty = "Hard"
 
-class OverallTag(Tag):
+class Overall(Tag):
     def __init__(self):
         super().__init__()
-
-        self.slug = "overall"

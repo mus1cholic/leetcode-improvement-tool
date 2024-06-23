@@ -1,6 +1,25 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] - 2024-06-22
+
+### Added
+
+### Changed
+
+- Changed Overall to not be a tag class, instead moving it directly
+onto a user's profile
+- Changed the Queue tag to be Greedy instead, since it is a more common
+topic in interview questions
+- Changed TagsEnum structure to include full name (name with spaces) for
+pretty display
+
+### Fixed
+
+- Fixed bug with Overall tag logic causing too many questions to be added
+- Fixed zerotrac rated to default to -1 when no rating data exists to
+prevent advancedrecommend command to search for non-rated questions
+
 ## [0.5.9] - 2024-06-19
 
 ### Added

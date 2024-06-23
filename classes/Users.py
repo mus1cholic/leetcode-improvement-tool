@@ -29,9 +29,7 @@ class User():
 
         self.get_leetcode_data()
         self.build_tags()
-
         self.build_ratings()
-
         self.build_settings()
 
     def parse_txt(self):
@@ -66,8 +64,8 @@ class User():
         self.user_tags_stats = TagsStatistics(self.completed_questions, self.rating_question_tag_data_collection)
         self.user_tags_stats.build_tag_data()
 
-    def build_ratings(self):        
-        self.questions_rating = self.user_tags_stats.tags[TagsEnum.Overall].tag_rating
+    def build_ratings(self):
+        self.questions_rating = self.user_tags_stats.overall.tag_rating
         
         # if contest_rating is 0, projected rating is questions_rating - 75
         # if contest_rating < questions_rating, projected rating = 0.75*questions_rating + 0.25*contest_rating
@@ -109,7 +107,3 @@ class User():
         }
 
         return user_data_structure
-    
-    @staticmethod
-    def read_from_database(user_discord_id: int):
-        pass

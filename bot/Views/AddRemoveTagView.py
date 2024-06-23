@@ -2,7 +2,6 @@ from discord.ui import View, Button
 import discord
 
 from classes.Tags import TagsEnum
-
 from db.db import Database
 
 from functools import partial
@@ -14,18 +13,15 @@ class AddRemoveTagView(View):
         # get the results of settings
         self.db = Database()
         self.user_db_id = user_result['_id']
-        self.blacklisted_tags: list[TagsEnum] = user_result["settings"]["blacklisted_tags"]
+        self.blacklisted_tags = [TagsEnum.from_slug(slug) for slug in user_result["settings"]["blacklisted_tags"]]
 
         self.message = None
 
-        for (i, tag) in enumerate(TagsEnum):
-            if tag == TagsEnum.Overall:
-                continue
-            
+        for i, tag in enumerate(TagsEnum):
             if tag in self.blacklisted_tags:
-                button = Button(label=tag.name, style=discord.ButtonStyle.red)
+                button = Button(label=tag.full_name, style=discord.ButtonStyle.red)
             else:
-                button = Button(label=tag.name, style=discord.ButtonStyle.green)
+                button = Button(label=tag.full_name, style=discord.ButtonStyle.green)
 
             button.callback = partial(self.tag_callback, button, tag)
             button.row = i // 5

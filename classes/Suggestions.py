@@ -64,6 +64,9 @@ class Suggestion:
                     tags_must_include: list[TagsEnum],
                     tags_ignore: list[TagsEnum]):
         match_criteria = {}
+        
+        tags_must_include = [tag for tag in tags_must_include]
+        tags_ignore = [tag for tag in tags_ignore]
 
         if tags_must_include:
             match_criteria["tags"] = {"$all": tags_must_include}

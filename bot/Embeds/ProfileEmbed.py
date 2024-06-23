@@ -1,7 +1,8 @@
-from discord import Embed, Colour, User
-from discord.ext import commands
-
 import datetime
+
+from discord import Embed, Colour, User
+
+from classes.Tags import TagsEnum
 
 class ProfileEmbed:
     def __init__(self, author: User, user):
@@ -22,10 +23,9 @@ class ProfileEmbed:
 
         embed.add_field(name="Skillsets", value="", inline=False)
         for tag in user["tags"]:
-            if tag["slug"] == "overall":
-                continue
-            
-            embed.add_field(name=tag["slug"], value="{:0.0f}".format(tag["rating"]), inline=True)
+            embed.add_field(name=TagsEnum.from_slug(tag["slug"]).full_name,
+                            value="{:0.0f}".format(tag["rating"]),
+                            inline=True)
 
         # TODO: put settings not in profile
 

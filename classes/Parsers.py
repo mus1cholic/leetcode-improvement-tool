@@ -75,7 +75,7 @@ class Parser:
             "title": question["questionTitle"],
             "title_slug": question["titleSlug"],
             "predicted_rating": predict_question_rating(question),
-            "zerotrac_rating": ratings.get(question["questionFrontendId"], 0)
+            "zerotrac_rating": ratings.get(question["questionFrontendId"], -1)
         } for question in questions]
 
         self.db.insert_ratings_db(ratings_data)
