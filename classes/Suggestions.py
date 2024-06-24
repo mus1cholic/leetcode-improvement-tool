@@ -1,8 +1,7 @@
 import enum
 
-from db.db import Database
-
 from classes.Tags import TagsEnum
+from db.db import Database
 
 class RecommendationEnum(enum.Enum):
     simple = 1

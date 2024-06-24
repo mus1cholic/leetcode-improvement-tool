@@ -37,10 +37,6 @@ class User():
 
         self.lc_username = user_data["user_name"]
 
-        if self.lc_username == "":
-            # TODO: put some error message here back
-            pass
-
         user_questions_stats = user_data["stat_status_pairs"]
 
         self.completed_questions = sorted([question['stat']['frontend_question_id']
@@ -96,7 +92,7 @@ class User():
         user_data_structure = {
             "discord_id": self.discord_id,
             "discord_username": self.discord_username,
-            "lc_user_name": self.lc_username,
+            "lc_username": self.lc_username,
             "avatar": self.avatar,
             "contest_rating": self.contest_rating,
             "questions_rating": self.questions_rating,

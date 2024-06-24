@@ -1,5 +1,4 @@
 import datetime
-
 from discord import Embed, Colour, User
 
 from classes.Tags import TagsEnum
@@ -12,8 +11,8 @@ class ProfileEmbed:
         embed.set_thumbnail(url=user["avatar"])
         embed.color = Colour.blurple()
 
-        embed.title = f"{user['lc_user_name']}'s Leetcode Profile"
-        embed.url = f"https://leetcode.com/u/{user['lc_user_name']}/"
+        embed.title = f"{user['lc_username']}'s Leetcode Profile"
+        embed.url = f"https://leetcode.com/u/{user['lc_username']}/"
 
         embed.add_field(name="Ratings", value="", inline=False)
         embed.add_field(name="Overall Rating", value="{:0.0f}".format(user["projected_rating"]), inline=True)

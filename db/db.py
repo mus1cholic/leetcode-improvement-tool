@@ -47,8 +47,8 @@ class Database(object):
     
     @classmethod
     def find_user_by_leetcode_username(cls, lc_username: str):
-        query = {# TODO: change this to username
-            "lc_user_name": lc_username
+        query = {
+            "lc_username": lc_username
         }
 
         result = cls.user_data_collection.find_one(query)

@@ -1,8 +1,7 @@
-import pickle
-
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+import pickle
+# import matplotlib.pyplot as plt
 
 from utils.utils import convert_topicTags_to_tags_array
 

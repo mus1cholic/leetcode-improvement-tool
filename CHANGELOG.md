@@ -1,6 +1,21 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.6.1] - 2024-06-23
+
+### Added
+
+### Changed
+
+### Fixed
+
+- Fixed case when user would upload invalid file or a file when
+not logged in 
+- Fixed inconsistent field name
+- Fixed commands sync issue that made duplicate commands show
+- Fixed some inconsistencies with import order
+- Fixed tag class object being stored instead of tag slug
+
 ## [0.6.0] - 2024-06-22
 
 ### Added

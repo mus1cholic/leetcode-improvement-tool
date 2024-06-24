@@ -1,7 +1,6 @@
 import time
 
-from .Users import User
-
+from classes.Users import User
 from db.db import Database
 
 """

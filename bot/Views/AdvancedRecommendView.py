@@ -1,11 +1,9 @@
-from discord.ui import View, Select, Button, Modal
+from discord.ui import View, Button, Modal
 import discord
 
-from db.db import Database
-
-from classes.Tags import TagsEnum
-
 from classes.Suggestions import AdvancedSuggestion
+from classes.Tags import TagsEnum
+from db.db import Database
 
 class RangeModal(Modal, title="Rating Range"):
     def __init__(self, parent_view):

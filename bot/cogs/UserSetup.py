@@ -1,16 +1,9 @@
 import discord
-
-from typing import Optional
-
 from discord.ext import commands
 
-from classes.Builders import Builder
-from classes.Tags import TagsEnum
-
 from bot.Views.AddRemoveTagView import AddRemoveTagView
-
+from classes.Builders import Builder
 from db.db import Database
-
 from utils.utils import discord_get_attachment_content
 
 """
@@ -80,6 +73,11 @@ class UserSetup(commands.Cog):
         
         file_url = attachments[0]
         file_content = discord_get_attachment_content(file_url)
+
+        if len(file_content) > 100 and file_content[:16] == b'{\"user_name\": \"\"':
+            await ctx.send(f"{ctx.message.author.mention}, make sure you are logged in "
+                           "before clicking on the link.")
+            return
 
         if self.db.find_user_by_discord_id(discord_user_id):
             self.db.delete_user_by_discord_id(discord_user_id)

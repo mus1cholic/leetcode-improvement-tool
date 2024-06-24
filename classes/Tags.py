@@ -1,6 +1,6 @@
-from enum import Enum
 import numpy as np
 
+from enum import Enum
 from pymongo.collection import Collection
 
 class TagsEnum(Enum):
@@ -58,26 +58,26 @@ class TagsStatistics:
         self.tags: dict[TagsEnum, Tag] = {}
         self.output: list[dict[str: any]] = []
 
-        self.tags[TagsEnum.Array] = ArrayTag()
-        self.tags[TagsEnum.String] = StringTag()
-        self.tags[TagsEnum.HashTable] = HashTableTag()
-        self.tags[TagsEnum.Matrix] = MatrixTag()
-        self.tags[TagsEnum.Stack] = StackTag()
-        self.tags[TagsEnum.LinkedList] = LinkedListTag()
+        self.tags[TagsEnum.Array.slug] = ArrayTag()
+        self.tags[TagsEnum.String.slug] = StringTag()
+        self.tags[TagsEnum.HashTable.slug] = HashTableTag()
+        self.tags[TagsEnum.Matrix.slug] = MatrixTag()
+        self.tags[TagsEnum.Stack.slug] = StackTag()
+        self.tags[TagsEnum.LinkedList.slug] = LinkedListTag()
 
-        self.tags[TagsEnum.TwoPointers] = TwoPointersTag()
-        self.tags[TagsEnum.BinarySearch] = BinarySearchTag()
-        self.tags[TagsEnum.SlidingWindow] = SlidingWindowTag()
-        self.tags[TagsEnum.Tree] = TreeTag()
-        self.tags[TagsEnum.HeapPriorityQueue] = HeapTag()
-        self.tags[TagsEnum.Graph] = GraphTag()
-        self.tags[TagsEnum.Math] = MathTag()
+        self.tags[TagsEnum.TwoPointers.slug] = TwoPointersTag()
+        self.tags[TagsEnum.BinarySearch.slug] = BinarySearchTag()
+        self.tags[TagsEnum.SlidingWindow.slug] = SlidingWindowTag()
+        self.tags[TagsEnum.Tree.slug] = TreeTag()
+        self.tags[TagsEnum.HeapPriorityQueue.slug] = HeapTag()
+        self.tags[TagsEnum.Graph.slug] = GraphTag()
+        self.tags[TagsEnum.Math.slug] = MathTag()
 
-        self.tags[TagsEnum.Greedy] = GreedyTag()
-        self.tags[TagsEnum.Backtracking] = BacktrackingTag()
-        self.tags[TagsEnum.DynamicProgramming] = DynamicProgrammingTag()
-        self.tags[TagsEnum.BitManipulation] = BitManipulationTag()
-        self.tags[TagsEnum.TopologicalSort] = TopologicalSortTag()
+        self.tags[TagsEnum.Greedy.slug] = GreedyTag()
+        self.tags[TagsEnum.Backtracking.slug] = BacktrackingTag()
+        self.tags[TagsEnum.DynamicProgramming.slug] = DynamicProgrammingTag()
+        self.tags[TagsEnum.BitManipulation.slug] = BitManipulationTag()
+        self.tags[TagsEnum.TopologicalSort.slug] = TopologicalSortTag()
 
         self.overall = Overall()
 
@@ -138,8 +138,6 @@ class Tag:
         self.tag_rating = np.percentile(np_ratings, 80) # 80th percentile
 
 class ArrayTag(Tag):
-    slug = "array"
-
     def __init__(self):
         super().__init__()
 

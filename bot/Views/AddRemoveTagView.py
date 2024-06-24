@@ -1,10 +1,9 @@
-from discord.ui import View, Button
 import discord
+from discord.ui import View, Button
+from functools import partial
 
 from classes.Tags import TagsEnum
 from db.db import Database
-
-from functools import partial
 
 class AddRemoveTagView(View):
     def __init__(self, user_result, timeout=30):

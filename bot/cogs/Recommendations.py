@@ -1,11 +1,8 @@
 from discord.ext import commands
 from typing import Optional
 
-from classes.Suggestions import SimpleSuggestion, RecommendationEnum
-from classes.Tags import TagsEnum
-
 from bot.Views.AdvancedRecommendView import AdvancedRecommendView
-
+from classes.Suggestions import SimpleSuggestion, RecommendationEnum
 from db.db import Database
 
 """
