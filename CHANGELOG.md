@@ -1,6 +1,17 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.6.2] - 2024-06-27
+
+### Added
+
+### Changed
+
+- Changed intensive method calls to use asyncio threads in order to prevent
+event loop blocking
+
+### Fixed
+
 ## [0.6.1] - 2024-06-23
 
 ### Added

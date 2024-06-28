@@ -1,3 +1,4 @@
+import asyncio
 import discord
 from discord.ext import commands
 
@@ -45,7 +46,7 @@ class UserSetup(commands.Cog):
         user_result = self.db.find_user_by_discord_id(ctx.message.author.id)
 
         if not user_result:
-            await ctx.send(f"{ctx.message.author.mention}, you have not created " +\
+            await ctx.send(f"{ctx.message.author.mention}, you have not created "
                            "a profile yet. You can do so with /createprofile")    
             return
 
@@ -65,6 +66,8 @@ class UserSetup(commands.Cog):
         attachment: discord.Attachment
             Your algorithms txt file
         """
+        
+        await ctx.defer()
 
         discord_user_id = ctx.message.author.id
         discord_username = ctx.message.author.name
@@ -82,6 +85,6 @@ class UserSetup(commands.Cog):
         if self.db.find_user_by_discord_id(discord_user_id):
             self.db.delete_user_by_discord_id(discord_user_id)
         
-        self.builder.build_user_data(discord_user_id, discord_username, file_content)
+        await asyncio.to_thread(self.builder.build_user_data, discord_user_id, discord_username, file_content)
 
         await ctx.send(f"{ctx.message.author.mention}, your data has been saved to the database.")

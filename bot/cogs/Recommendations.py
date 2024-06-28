@@ -1,3 +1,4 @@
+import asyncio
 from discord.ext import commands
 from typing import Optional
 
@@ -30,7 +31,7 @@ class Recommendations(commands.Cog):
 
         discord_user_id = ctx.message.author.id
 
-        response = self.simple_suggestion.suggest_problem(discord_user_id, difficulty=difficulty)
+        response = await asyncio.to_thread(self.simple_suggestion.suggest_problem, discord_user_id, difficulty=difficulty)
 
         response = f"{ctx.message.author.mention}, {response}"
 

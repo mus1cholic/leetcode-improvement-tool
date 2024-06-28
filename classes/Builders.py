@@ -98,5 +98,3 @@ class Builder:
         user_data_structure = user.output_user_data_structure()
 
         self.db.insert_user(user_data_structure)
-
-        print(f"Successfully built user database for user {user_discord_username}")
